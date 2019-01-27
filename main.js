@@ -1,4 +1,18 @@
 console.log("Welcome to the JS Event Organizer!");
+let switchOrganizer = true;
+
+if(!switchOrganizer){
+    console.log('Organizer has been switched off. In order to use it, please switch it on first.')
+}
+
+function switchOrganizerFunc(switchOrg) {
+    switchOrganizer = switchOrg;
+    console.log(switchOrganizer);
+}
+
+function switchedOffOrganizerMessage() {
+    console.log('Organizer switched off. All functionality not available until switched on.')
+}
 
 class Event {
     constructor(id, name, access = 0) {
@@ -6,6 +20,8 @@ class Event {
         this.name = name;
         this.access = access;
         this.clients = [];
+        this.dateCreated = new Date(Date.now()).toLocaleString();
+        this.dateUpdated = new Date(Date.now()).toLocaleString();
     }
 }
 
@@ -19,6 +35,10 @@ class Client {
 }
 
 function createEvent(name, access) {
+    if (!switchOrganizer) {
+        switchedOffOrganizerMessage();
+        return;
+    }
     if (name == '' || name == null) {
         console.log('You must enter a name in order to create an event.');
         return;
@@ -49,6 +69,10 @@ function createEvent(name, access) {
 }
 
 function getEvents() {
+    if (!switchOrganizer) {
+        switchedOffOrganizerMessage();
+        return;
+    }
     if (localStorage.getItem('events') != null) {
         let events = [];
         JSON.parse(localStorage.getItem('events')).forEach(function (event) {
@@ -61,6 +85,10 @@ function getEvents() {
 }
 
 function getEventById(eventId) {
+    if (!switchOrganizer) {
+        switchedOffOrganizerMessage();
+        return;
+    }
     if (!Number.isInteger(eventId)) {
         console.log('Event id must be number.');
         return;
@@ -80,31 +108,48 @@ function getEventById(eventId) {
 }
 
 function showEvents() {
+    if (!switchOrganizer) {
+        switchedOffOrganizerMessage();
+        return;
+    }
     if (localStorage.getItem('events') == null) {
         console.log('No events available!');
-    } else {
-        console.log('Events list: ');
-        getEvents().forEach(function (item) {
-            console.log('----- Event ' + item.id + ' -----');
-            console.log('Name: ' + item.name);
-            if (item.access == 0) {
-                console.log('Accessible for all.');
-            } else {
-                console.log('Accessible for 18+.');
-            }
-            if (item.clients == '') {
-                console.log('No clients for this event.');
-            } else {
-                console.log('--- Clients ---');
-                // console.log(item.clients);
-                showEventsClientsList(item.id);
-            }
-            // console.log('-------')
-        });
+        return;
     }
+    console.log('Events list: ');
+    getEvents().forEach(function (item) {
+        console.log('----- Event ' + item.id + ' -----');
+        let nameValue = 'Name: ' + item.name;
+        if(item.access == 1){
+            console.log(addSpecialSymbol('*', nameValue));
+
+        } else {
+            console.log(addSpecialSymbol('#', nameValue));
+
+        }
+        if (item.access == 0) {
+            console.log('Accessible for all.');
+        } else {
+            console.log('Accessible for 18+.');
+        }
+        if (item.clients == '') {
+            console.log('No clients for this event.');
+        } else {
+            console.log('--- Clients ---');
+            showEventsClientsList(item.id);
+        }
+        console.log('Creation date: ' + item.dateCreated);
+        console.log('Last update: ' + item.dateUpdated);
+        // console.log('-------')
+    });
+
 }
 
 function removeEvent(id) {
+    if(!switchOrganizer){
+        switchedOffOrganizerMessage();
+        return;
+    }
     if (localStorage.getItem('events') == null) {
         console.log('No events to delete!');
         return;
@@ -130,6 +175,10 @@ function removeEvent(id) {
 }
 
 function updateEvent(id, name, access = 0) {
+    if(!switchOrganizer){
+        switchedOffOrganizerMessage();
+        return;
+    }
     if (id == '' || id == null) {
         console.log('You must enter an id in order to update an event');
         return;
@@ -151,6 +200,7 @@ function updateEvent(id, name, access = 0) {
             if (access != '' || access != null) {
                 event.access = access;
             }
+            event.dateUpdated = new Date(Date.now()).toLocaleString();
         }
     });
     localStorage.removeItem('events');
@@ -161,6 +211,10 @@ function updateEvent(id, name, access = 0) {
 }
 
 function createClient(name, gender, age) {
+    if(!switchOrganizer){
+        switchedOffOrganizerMessage();
+        return;
+    }
     if (name == '' || name == null) {
         console.log('You must enter a name in order to create a client.');
         return;
@@ -198,6 +252,10 @@ function createClient(name, gender, age) {
 }
 
 function getClients() {
+    if(!switchOrganizer){
+        switchedOffOrganizerMessage();
+        return;
+    }
     if (localStorage.getItem('clients') != null) {
         let clients = [];
         JSON.parse(localStorage.getItem('clients')).forEach(function (client) {
@@ -208,6 +266,10 @@ function getClients() {
 }
 
 function getClientById(clientId) {
+    if(!switchOrganizer){
+        switchedOffOrganizerMessage();
+        return;
+    }
     if (!Number.isInteger(clientId)) {
         console.log('Client id must be number.');
         return;
@@ -227,6 +289,10 @@ function getClientById(clientId) {
 }
 
 function showClients() {
+    if(!switchOrganizer){
+        switchedOffOrganizerMessage();
+        return;
+    }
     if (localStorage.getItem('clients') == null) {
         console.log('No clients!');
         return;
@@ -242,6 +308,10 @@ function showClients() {
 }
 
 function removeClient(id) {
+    if(!switchOrganizer){
+        switchedOffOrganizerMessage();
+        return;
+    }
     if (localStorage.getItem('clients') == null) {
         console.log('No clients to delete!');
         return;
@@ -250,7 +320,6 @@ function removeClient(id) {
         console.log('Client id must be integer.');
         return;
     }
-    // isValueInteger(id);
     let clients = [];
     getClients().forEach(function (item) {
         clients.push(item);
@@ -267,6 +336,10 @@ function removeClient(id) {
 }
 
 function updateClient(id, name, gender, age) {
+    if(!switchOrganizer){
+        switchedOffOrganizerMessage();
+        return;
+    }
     if (id == '' || id == null) {
         console.log('You must enter an id in order to update a client.');
         return;
@@ -308,6 +381,10 @@ function updateClient(id, name, gender, age) {
 
 
 function addClientToEvent(eventId, clientId) {
+    if(!switchOrganizer){
+        switchedOffOrganizerMessage();
+        return;
+    }
     if (eventId == '' || eventId == null) {
         console.log('Event id must be entered.');
         return;
@@ -345,6 +422,7 @@ function addClientToEvent(eventId, clientId) {
                     console.log('Player has been added to the list already.');
                     error++;
                 }
+                error = 0;
             });
             if (el.access == 1 && client.age < 18) {
                 console.log('Event not suitable for this client. Will not be added.');
@@ -353,13 +431,17 @@ function addClientToEvent(eventId, clientId) {
             el.clients.push(client);
         }
     });
-    if (error = 0) {
+    if (error == 0) {
         console.log('Client with id = ' + clientId + ' has been added to event with id = ' + eventId);
         localStorage.setItem('events', JSON.stringify(events));
     }
 }
 
 function removeClientFromEvent(eventId, clientId) {
+    if(!switchOrganizer){
+        switchedOffOrganizerMessage();
+        return;
+    }
     if (eventId == '' || eventId == null) {
         console.log('Event id must be entered.');
         return;
@@ -388,9 +470,6 @@ function removeClientFromEvent(eventId, clientId) {
         return;
     }
 
-    // console.log(getEvents());
-    // let event = getEventById(eventId);
-    // let client = getClientById(clientId);
     let clients = [];
     let newEvents = [];
     getEvents().forEach(function (el) {
@@ -414,6 +493,10 @@ function removeClientFromEvent(eventId, clientId) {
 }
 
 function showEventsClientsList(eventId, gender = 0) {
+    if(!switchOrganizer){
+        switchedOffOrganizerMessage();
+        return;
+    }
     if (!Number.isInteger(eventId)) {
         console.log('Event id must be a number.');
         return;
@@ -436,14 +519,56 @@ function showEventsClientsList(eventId, gender = 0) {
         return;
     }
     event.clients.forEach(function (client) {
-        // console.log(client);
         console.log('Client ' + client.id);
         console.log('Name: ' + client.name);
         console.log('Gender: ' + client.gender);
         console.log('Age: ' + client.age);
         console.log('-------')
     });
-    // console.log(event.clients);
+}
+
+function getEventWithMostClients(){
+    if(!switchOrganizer){
+        switchedOffOrganizerMessage();
+        return;
+    }
+    let events = getEvents();
+    if (localStorage.getItem('events') == null) {
+        console.log('No events available.');
+        return;
+    }
+    let maxClientCount = events[0].clients.length;
+    events.forEach(function (event) {
+        if(event.clients.length > maxClientCount){
+            maxClientCount = event.clients.length;
+        }
+    });
+    console.log('Event(s) with most clients: ');
+    events.forEach(function (event) {
+       if(event.clients.length == maxClientCount) {
+           console.log('\'' + event.name + '\' has ' + maxClientCount + ' clients.');
+       }
+    });
+    console.log(maxClientCount);
+}
+
+function getEventsForUnderEighteen(){
+    if(!switchOrganizer){
+        switchedOffOrganizerMessage();
+        return;
+    }
+    let events = getEvents();
+    if (localStorage.getItem('events') == null) {
+        console.log('No events available.');
+        return;
+    }
+    console.log('Events suitable for people below 18: ');
+    events.forEach(function (event) {
+        if(event.access == 0){
+            console.log(event.name);
+        }
+    });
+
 }
 
 function isEmpty(object) {
@@ -458,4 +583,8 @@ function isValueInteger(value) {
     if (!Number.isInteger(value)) {
         console.log('Must be a number.');
     }
+}
+
+function addSpecialSymbol(symbol, message){
+    return symbol + message;
 }
