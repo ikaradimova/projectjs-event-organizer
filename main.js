@@ -1,10 +1,17 @@
 console.log("Welcome to the JS Event Organizer!");
+
+/**
+ * variable for switching on and off the app.
+ */
 let switchOrganizer = true;
 
-if (!switchOrganizer) {
-    console.log('Organizer has been switched off. In order to use it, please switch it on first.')
-}
+// if (!switchOrganizer) {
+//     console.log('Organizer has been switched off. In order to use it, please switch it on first.');
+// }
 
+/**
+ * function for switching on and off the organizer
+ */
 function switchOrganizerFunc(switchOrg) {
     switchOrganizer = switchOrg;
     if(switchOrg === true){
@@ -14,6 +21,9 @@ function switchOrganizerFunc(switchOrg) {
     }
 }
 
+/**
+ * Message if organizer has been switched  off.
+ */
 function switchedOffOrganizerMessage() {
     console.log('Organizer switched off. All functionality not available until switched on.')
 }
@@ -47,6 +57,12 @@ class Client {
     }
 }
 
+/**
+ * function for creating events
+ * @param name
+ * @param access
+ * @param price
+ */
 function createEvent(name, access, price) {
     if (!switchOrganizer) {
         switchedOffOrganizerMessage();
@@ -85,6 +101,10 @@ function createEvent(name, access, price) {
 
 }
 
+/**
+ * function for getting all events
+ * @returns {*}
+ */
 function getEvents() {
     if (!switchOrganizer) {
         switchedOffOrganizerMessage();
@@ -101,6 +121,12 @@ function getEvents() {
     }
 }
 
+/**
+ * function for getting a specific event by id
+ *
+ * @param eventId
+ * @returns {{}}
+ */
 function getEventById(eventId) {
     if (!switchOrganizer) {
         switchedOffOrganizerMessage();
@@ -124,9 +150,13 @@ function getEventById(eventId) {
     }
 }
 
+/**
+ * function for showing all the events
+ * if used with no parameters it returns all events
+ * if parameter set to '1' returns all archieved events
+ * if parameter set to '0' returns all active events
+ */
 function showEvents() {
-    let archieve = arguments[0];
-    // console.log(archieve);
     if (!switchOrganizer) {
         switchedOffOrganizerMessage();
         return;
@@ -136,6 +166,8 @@ function showEvents() {
         return;
     }
     console.log('Events list: ');
+
+    let archieve = arguments[0];
     getEvents().forEach(function (item) {
         if(archieve === undefined || archieve === ''){
             // console.log(archieve);
@@ -181,6 +213,10 @@ function showEvents() {
 
 }
 
+/**
+ * function for deleting event by id
+ * @param id
+ */
 function removeEvent(id) {
     if (!switchOrganizer) {
         switchedOffOrganizerMessage();
@@ -210,6 +246,14 @@ function removeEvent(id) {
 
 }
 
+/**
+ * function for updating event (general)
+ * only id and name parameters are mantatory
+ * @param id
+ * @param name
+ * @param access - by default is '0' which makes the event suitable for all clients (no age restrictions)
+ * @param price - by default is '0' which makes it charity event
+ */
 function updateEvent(id, name, access = 0, price = 0) {
     if (!switchOrganizer) {
         switchedOffOrganizerMessage();
@@ -258,6 +302,13 @@ function updateEvent(id, name, access = 0, price = 0) {
 
 }
 
+/**
+ * function for creating a client
+ * @param name
+ * @param gender
+ * @param age
+ * @param wallet
+ */
 function createClient(name, gender, age, wallet) {
     if (!switchOrganizer) {
         switchedOffOrganizerMessage();
@@ -307,6 +358,11 @@ function createClient(name, gender, age, wallet) {
     console.log('New client has been created.');
 }
 
+
+/**
+ * function for getting all clients
+ * @returns {*}
+ */
 function getClients() {
     if (!switchOrganizer) {
         switchedOffOrganizerMessage();
@@ -321,6 +377,11 @@ function getClients() {
     }
 }
 
+/**
+ * function for getting a client by it's id
+ * @param clientId
+ * @returns {{}}
+ */
 function getClientById(clientId) {
     if (!switchOrganizer) {
         switchedOffOrganizerMessage();
@@ -344,6 +405,9 @@ function getClientById(clientId) {
     }
 }
 
+/**
+ * function for displaying all clients
+ */
 function showClients() {
     if (!switchOrganizer) {
         switchedOffOrganizerMessage();
@@ -364,6 +428,10 @@ function showClients() {
     });
 }
 
+/**
+ * function for deleting client by it's id
+ * @param id
+ */
 function removeClient(id) {
     if (!switchOrganizer) {
         switchedOffOrganizerMessage();
@@ -392,6 +460,15 @@ function removeClient(id) {
 
 }
 
+/**
+ * function for updating client (general)
+ * all parameters are mandatory
+ * @param id
+ * @param name
+ * @param gender
+ * @param age
+ * @param wallet
+ */
 function updateClient(id, name, gender, age, wallet) {
     if (!switchOrganizer) {
         switchedOffOrganizerMessage();
@@ -445,7 +522,164 @@ function updateClient(id, name, gender, age, wallet) {
     console.log('Client ' + id + ' has been updated');
 }
 
+/**
+ * function for updating client's name by it's id
+ * all parameters mandatory
+ * @param id
+ * @param name
+ */
+function updateClientName(id, name){
+    if (!switchOrganizer) {
+        switchedOffOrganizerMessage();
+        return;
+    }
+    if (id === '' || id == null) {
+        console.log('You must enter an id in order to update a client.');
+        return;
+    }
+    if (name === '' || name == null) {
+        console.log('You must enter a name in order to update a client.');
+        return;
+    }
 
+    if (!Number.isInteger(id)) {
+        console.log('Client id must be a number.');
+        return;
+    }
+
+    let clients = getClients();
+    clients.forEach(function (client) {
+        if (client.id === id) {
+            client.name = name;
+        }
+    });
+    localStorage.removeItem('clients');
+    localStorage.setItem('clients', JSON.stringify(clients));
+
+    console.log('Client ' + id + ' has been updated');
+}
+
+/**
+ * function for updating client's gender by it's id
+ * all parameters are mandatory
+ * @param id
+ * @param gender
+ */
+function updateClientGender(id, gender){
+    if (!switchOrganizer) {
+        switchedOffOrganizerMessage();
+        return;
+    }
+    if (id === '' || id == null) {
+        console.log('You must enter an id in order to update a client.');
+        return;
+    }
+    if (gender === '' || gender == null) {
+        console.log('You must enter a gender in order to update a client.');
+        return;
+    }
+    if (!Number.isInteger(id)) {
+        console.log('Client id must be a number.');
+        return;
+    }
+
+    let clients = getClients();
+    clients.forEach(function (client) {
+        if (client.id === id) {
+            client.gender = gender;
+        }
+    });
+    localStorage.removeItem('clients');
+    localStorage.setItem('clients', JSON.stringify(clients));
+
+    console.log('Client ' + id + ' has been updated');
+}
+
+/**
+ * function for updating client's age by it's id
+ * all parameters are mandatory
+ * @param id
+ * @param age
+ */
+function updateClientAge(id, age){
+    if (!switchOrganizer) {
+        switchedOffOrganizerMessage();
+        return;
+    }
+    if (id === '' || id == null) {
+        console.log('You must enter an id in order to update a client.');
+        return;
+    }
+    if (age === '' || age == null) {
+        console.log('You must enter an age in order to update a client.');
+        return;
+    }
+    if (!Number.isInteger(id)) {
+        console.log('Client id must be a number.');
+        return;
+    }
+    if (!Number.isInteger(age)) {
+        console.log('Age must be a number.');
+        return;
+    }
+
+    let clients = getClients();
+    clients.forEach(function (client) {
+        if (client.id === id) {
+            client.age = age;
+        }
+    });
+    localStorage.removeItem('clients');
+    localStorage.setItem('clients', JSON.stringify(clients));
+
+    console.log('Client ' + id + ' has been updated');
+}
+
+/**
+ * function for updating client's wallet by it's id
+ * all parameters are mandatory
+ * @param id
+ * @param wallet
+ */
+function updateClientWallet(id, wallet) {
+    if (!switchOrganizer) {
+        switchedOffOrganizerMessage();
+        return;
+    }
+    if (id === '' || id == null) {
+        console.log('You must enter an id in order to update a client.');
+        return;
+    }
+    if (wallet === '' || wallet == null) {
+        console.log('You must enter wallet money in order to create a client.');
+        return;
+    }
+    if (!Number.isInteger(id)) {
+        console.log('Client id must be a number.');
+        return;
+    }
+    if (!Number.isInteger(wallet)) {
+        console.log('Wallet money must be a number.');
+        return;
+    }
+
+    let clients = getClients();
+    clients.forEach(function (client) {
+        if (client.id === id) {
+            client.wallet = wallet;
+        }
+    });
+    localStorage.removeItem('clients');
+    localStorage.setItem('clients', JSON.stringify(clients));
+
+    console.log('Client ' + id + ' has been updated');
+}
+
+/**
+ * function for adding a client to an event
+ * @param eventId
+ * @param clientId
+ */
 function addClientToEvent(eventId, clientId) {
     if (!switchOrganizer) {
         switchedOffOrganizerMessage();
@@ -543,6 +777,11 @@ function addClientToEvent(eventId, clientId) {
     }
 }
 
+/**
+ * function for removig a client to an event that he/she has been added
+ * @param eventId
+ * @param clientId
+ */
 function removeClientFromEvent(eventId, clientId) {
     if (!switchOrganizer) {
         switchedOffOrganizerMessage();
@@ -631,6 +870,14 @@ function removeClientFromEvent(eventId, clientId) {
     localStorage.setItem('clients', JSON.stringify(newClients));
 }
 
+/**
+ * function for showing a list of the clients attending a certain event
+ * @param eventId
+ * @param gender - if no gender parameter it displays all clients, no matter the gender
+ *                 if gender = 'male' only displays male clients
+ *                 if gender = 'female' only displays female clients
+ *                 if gender = something else, id shows the clients that belong to this gender, if any
+ */
 function showEventsClientsList(eventId, gender = 0) {
     if (!switchOrganizer) {
         switchedOffOrganizerMessage();
@@ -670,6 +917,10 @@ function showEventsClientsList(eventId, gender = 0) {
     });
 }
 
+/**
+ * function for getting the event with most clients
+ * if events are more than one, displays all
+ */
 function getEventWithMostClients() {
     if (!switchOrganizer) {
         switchedOffOrganizerMessage();
@@ -695,6 +946,9 @@ function getEventWithMostClients() {
     // console.log(maxClientCount);
 }
 
+/**
+ * function for getting all events that are suitable for people under 18
+ */
 function getEventsForUnderEighteen() {
     if (!switchOrganizer) {
         switchedOffOrganizerMessage();
@@ -713,6 +967,10 @@ function getEventsForUnderEighteen() {
     });
 }
 
+/**
+ * function for archieving event by it's id
+ * @param eventId
+ */
 function archieveEvent(eventId){
     if (!switchOrganizer) {
         switchedOffOrganizerMessage();
@@ -731,6 +989,14 @@ function archieveEvent(eventId){
     console.log('Event \'' + event.name + '\' archieved.');
 }
 
+/**
+ * function for event rating
+ * all fields mandatory
+ * only archieved events can be rated
+ * @param eventId
+ * @param clientId
+ * @param points
+ */
 function rateEvent(eventId, clientId, points){
     if (!switchOrganizer) {
         switchedOffOrganizerMessage();
@@ -812,10 +1078,20 @@ function rateEvent(eventId, clientId, points){
 
 }
 
+/**
+ * function for calculating ratings
+ * @param clientsCount - number of clients that has rated the event
+ * @param points - sum of the points of all clients that rated the event
+ * @returns {number}
+ */
 function calculateRating(clientsCount, points){
     return (6 * points) / (10 * clientsCount);
 }
 
+/**
+ * function for event details printing
+ * @param item - single event
+ */
 function printEvents(item){
     console.log('----- Event ' + item.id + ' -----');
     let nameValue = 'Name: ' + item.name;
@@ -854,7 +1130,11 @@ function printEvents(item){
     }
 }
 
-
+/**
+ * checks if object is empty
+ * @param object
+ * @returns {boolean}
+ */
 function isEmpty(object) {
     for (let key in object) {
         if (object.hasOwnProperty(key))
@@ -863,12 +1143,22 @@ function isEmpty(object) {
     return true;
 }
 
+/**
+ * checks if value is integer
+ * @param value
+ */
 function isValueInteger(value) {
     if (!Number.isInteger(value)) {
         console.log('Must be a number.');
     }
 }
 
+/**
+ * function for adding special symbols when printing specific events
+ * @param symbol
+ * @param message
+ * @returns {*}
+ */
 function addSpecialSymbol(symbol, message) {
     return symbol + message;
 }
