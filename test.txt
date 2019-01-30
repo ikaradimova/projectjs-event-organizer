@@ -1,0 +1,121 @@
+// Event creation
+// * first parameter - name of the event
+// * second parameter (not mandatory) - access to the event
+// * third parameter (not mantadory) - price of the event if any
+createEvent('First event');
+createEvent('Second event', 1, 15);
+createEvent('Third event', 0, 10);
+createEvent('Forth event', 0);
+createEvent('Fifth event', 1, 2);
+createEvent('Sixth event', 0, 7);
+createEvent('Seventh event');
+createEvent('Eight event',0, 8);
+createEvent('Ninth event', 0, 9);
+createEvent('Tenth event', 0, 10);
+createEvent('Eleventh event', 1, 11);
+
+// Client creation (all parameters are mandatory)
+// * first parameter - name of the client
+// * second parameter - gender of the client
+// * third parameter - age
+// * fourth parameter - money in wallet
+createClient('Jessica Dale', 'female', 16, 100);
+createClient('Monika Geller', 'female', 18, 150);
+createClient('Ross Geller', 'male', 25, 250);
+createClient('Ben Geller', 'male', 5, 5);
+createClient('Ben Stiller', 'male', 45, 500);
+createClient('Jennifer Lopez', 'female', 40, 50);
+
+// Event deletion
+// * first parameter - id of the event
+removeEvent(11);
+
+// Client deletion
+// * first parameter - id of the client
+removeClient(6);
+
+// Event update
+// * first parameter - id of the event
+// * second parameter - name of the event
+// * third parameter (not mandatory) - access of the event (if not inserted it will automatically assume it is 0)
+// * fourth parameter (not mandatory) - price of the event (if not inserted it will automatically assume it is 0)
+updateEvent(10, 'Party 10', 0, 5);
+
+// Client update
+// * first parameter - id of the client
+// * second parameter - name of the client
+// * third parameter - gender of the client
+// * fourth parameter - age
+// * fifth parameter - money in wallet
+updateClient(5, 'Ben Stiller', 'male', 42, 500);
+
+// Client update variations
+updateClientName(5, 'Benn Stiller');
+updateClientGender(5, 'female');
+updateClientAge(5, 43);
+updateClientWallet(5, 1500);
+
+// Add client to event
+// * first parameter - id of the event
+// * second parameter - id of the client (clients that are underage, with no money or have already registered are not allowed)
+addClientToEvent(1,1);
+
+// Remove client from event
+// * first parameter - id of the event
+// * second parameter - id of the client
+removeClientFromEvent(1,1);
+
+// Showing client attending a specific event
+// Adding some client to the event
+addClientToEvent(1,1);
+addClientToEvent(1,2);
+addClientToEvent(1,3);
+// then
+// * first parameter - id of the event
+// * second parameter (not mandatory) - gender
+showEventsClientsList(1); // shows all clients attending the event
+showEventsClientsList(1,'female') // shows all female clients attending the event
+showEventsClientsList(1,'male') // shows all male clients attending the event
+
+// Showing event with the most clients
+// No parameters - shows the event with most clients, if there are more than one shows them all
+getEventWithMostClients();
+
+// Showing all events suitable for clients under 18
+// No parameters
+getEventsForUnderEighteen();
+
+// test for how wallet is working, vip status, event's income, underage and already registered
+addClientToEvent(1,2);
+addClientToEvent(2,2);
+addClientToEvent(3,2);
+addClientToEvent(4,2);
+addClientToEvent(5,2);
+addClientToEvent(6,2);
+addClientToEvent(7,2);
+addClientToEvent(8,2);
+// test when client doesn't have enough money
+addClientToEvent(2,4);
+
+// archieve event
+// * first parameter - event's id
+archieveEvent(1);
+
+// trying to add client to archieved event
+addClientToEvent(1,1);
+
+// showing list of all events
+// * first parameter (not mantatory) - is event archieved
+showEvents(); // shows all events
+showEvents(1); // shows only archieved events
+showEvents(0); // shows only active events
+
+// rating events
+// * first parameter - event id
+// * first parameter - client id
+// * first parameter - points that the client has given to the event (1-10)
+rateEvent(1, 1, 5);
+// test when trying to rate active events (not possible)
+rateEvent(2, 1, 5);
+// test when a client is trying to rate an event they hadn't been to
+rateEvent(1, 4, 5);
