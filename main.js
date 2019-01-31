@@ -5,6 +5,26 @@ console.log("Welcome to the JS Event Organizer!");
  */
 let switchOrganizer = true;
 
+/**
+ * const messages
+ * @type {string}
+ */
+const noEventsAvailable = `No events available!`;
+const noClientsAvailable = `No clients available!`;
+const noNameInserted = `You must enter a name.`;
+const noEventIdInserted = `You must enter an event id.`;
+const noClientIdInserted = `You must enter a client id.`;
+const noGenderInserted = `You must enter a gender.`;
+const noAgeInserted = `You must enter age.`;
+const noWalletInserted = `You must enter a wallet.`;
+const noPointsInserted = `You must enter points.`;
+const accessWarning = `Access must be 1(18+) or 0(for all)`;
+const priceWarning = `Price must be a number.`;
+const eventIdWarning = `Event id must be a number.`;
+const clientIdWarning = `Client id must be a number.`;
+const ageWarning = `Age must be a number.`;
+const walletWarning = `Wallet money must be a number.`;
+
 // if (!switchOrganizer) {
 //     console.log('Organizer has been switched off. In order to use it, please switch it on first.');
 // }
@@ -14,10 +34,10 @@ let switchOrganizer = true;
  */
 function switchOrganizerFunc(switchOrg) {
     switchOrganizer = switchOrg;
-    if(switchOrg === true){
-        console.log('Organizer has been switched on. You can use all available functionalities.');
+    if (switchOrg === true) {
+        console.log(`Organizer has been switched on. You can use all available functionalities.`);
     } else {
-        console.log('Organizer has been switched off. In order to use it, please switch it on first.')
+        console.log(`Organizer has been switched off. In order to use it, please switch it on first.`);
     }
 }
 
@@ -25,7 +45,7 @@ function switchOrganizerFunc(switchOrg) {
  * Message if organizer has been switched  off.
  */
 function switchedOffOrganizerMessage() {
-    console.log('Organizer switched off. All functionality not available until switched on.')
+    console.log(`Organizer switched off. All functionality not available until switched on.`);
 }
 
 class Event {
@@ -71,25 +91,30 @@ function createEvent(name, access, price) {
     }
 
     /** check if mandatory fields are filled */
-    if (name === '' || name == null) {
-        console.log('You must enter a name in order to create an event.');
+    if (checkMandatoryField(name) === false) {
+        console.log(noNameInserted);
         return;
     }
-    // if ((access !== '' || access != null) && !Number.isInteger(access)) {
-    //     console.log('Access must be 1(18+) or 0(for all)');
-    //     return;
-    // }
-    // if ((price !== '' || price != null) && !Number.isInteger(price)) {
-    //     console.log('Price must be a number.');
-    //     return;
-    // }
 
+    /** check if fields requiring numbers are receiving numbers */
+    if ((access !== '' || access != null) && (checkIfNumber(access) === false)) {
+        console.log(accessWarning);
+        return;
+    }
+    if ((price !== '' || price != null) && (checkIfNumber(price) === false)) {
+        console.log(priceWarning);
+        return;
+    }
+
+    /** creating events */
     let events = [];
+    /** if no events in localStorage */
     if (localStorage.getItem('events') == null || localStorage.getItem('events') === '[]') {
         let id = 1;
         let event = new Event(id, name, access, price);
         events.push(event);
         localStorage.setItem('events', JSON.stringify(events));
+        /** if there are any events in localStorage */
     } else {
         let id = JSON.parse(localStorage.getItem('events')).pop().id + 1;
         let event = new Event(id, name, access, price);
@@ -100,13 +125,12 @@ function createEvent(name, access, price) {
         localStorage.setItem('events', JSON.stringify(events));
     }
 
-    console.log('New event has been created.');
-
+    /** success message */
+    console.log(`New event has been created.`);
 }
 
 /**
  * function for getting all events
- * @returns {*}
  */
 function getEvents() {
     /** check if organizer is switched on */
@@ -116,15 +140,17 @@ function getEvents() {
     }
 
     /** check if any events in localStorage */
-    if (localStorage.getItem('events') != null) {
-        let events = [];
-        JSON.parse(localStorage.getItem('events')).forEach(function (event) {
-            events.push(event);
-        });
-        return events;
-    } else {
-        console.log('No events in list');
+    if (checkAvailability('events') === false) {
+        console.log(noEventsAvailable);
+        return;
     }
+
+    /** get events */
+    let events = [];
+    JSON.parse(localStorage.getItem('events')).forEach(function (event) {
+        events.push(event);
+    });
+    return events;
 }
 
 /**
@@ -138,25 +164,32 @@ function getEventById(eventId) {
         return;
     }
 
-    /** check if mandatory fields are filled */
-    if (!Number.isInteger(eventId)) {
-        console.log('Event id must be number.');
+    /** check if any events in localStorage */
+    if (checkAvailability('events') === false) {
+        console.log(noEventsAvailable);
         return;
     }
 
-    /** check if localStorage is empty */
-    if (localStorage.getItem('events') != null) {
-        /** gets single event */
-        let event = {};
-        getEvents().forEach(function (el) {
-            if (el.id === eventId) {
-                event = el;
-            }
-        });
-        return event;
-    } else {
-        console.log('No events in list');
+    /** check if mandatory fields are filled */
+    if (checkMandatoryField(eventId) === false) {
+        console.log(noEventIdInserted);
+        return;
     }
+
+    /** check if fields requiring numbers are receiving numbers */
+    if ((checkIfNumber(eventId) === false)) {
+        console.log(eventIdWarning);
+        return;
+    }
+
+    /** gets single event */
+    let event = {};
+    getEvents().forEach(function (el) {
+        if (el.id === eventId) {
+            event = el;
+        }
+    });
+    return event;
 }
 
 /**
@@ -173,8 +206,8 @@ function showEvents() {
     }
 
     /** check if there are any events in the localStorage */
-    if (localStorage.getItem('events') == null) {
-        console.log('No events available!');
+    if (checkAvailability('events') === false) {
+        console.log(noEventsAvailable);
         return;
     }
 
@@ -182,12 +215,12 @@ function showEvents() {
     console.log('Events list: ');
     getEvents().forEach(function (item) {
         /** check which events to show */
-        if(archieve === undefined || archieve === ''){
+        if (archieve === undefined || archieve === '') {
             /** shows all events */
             printEvents(item);
         } else {
             /** shows only active/archieved events */
-            if(item.archieve === archieve){
+            if (item.archieve === archieve) {
                 printEvents(item);
             }
         }
@@ -205,15 +238,21 @@ function removeEvent(id) {
         return;
     }
 
-    /** check if there are any events in localStorage */
-    if (localStorage.getItem('events') == null) {
-        console.log('No events to delete!');
+    /** check if any events in localStorage */
+    if (checkAvailability('events') === false) {
+        console.log(noEventsAvailable);
         return;
     }
 
-    /** check if id is number */
-    if (!Number.isInteger(id)) {
-        console.log('Event id must be number.');
+    /** check if mandatory fields are filled */
+    if (checkMandatoryField(id) === false) {
+        console.log(noEventIdInserted);
+        return;
+    }
+
+    /** check if fields requiring numbers are receiving numbers */
+    if ((checkIfNumber(id) === false)) {
+        console.log(eventIdWarning);
         return;
     }
 
@@ -235,7 +274,7 @@ function removeEvent(id) {
     localStorage.setItem('events', JSON.stringify(eventsAfterDeletion));
 
     /** displays message after successful deletion */
-    console.log('Event ' + id + ' has been deleted.');
+    console.log(`Event ${id} has been deleted.`);
 }
 
 /**
@@ -253,27 +292,33 @@ function updateEvent(id, name, access = 0, price = 0) {
         return;
     }
 
-    /** check if all mantadory fields are filled */
-    if (id === '' || id == null) {
-        console.log('You must enter an id in order to update an event');
+    /** check if any events in localStorage */
+    if (checkAvailability('events') === false) {
+        console.log(noEventsAvailable);
         return;
     }
-    if (name === '' || name == null) {
-        console.log('You must enter a name in order to update an event.');
+
+    /** check if all mantadory fields are filled */
+    if (checkMandatoryField(id) === false) {
+        console.log(noEventIdInserted);
+        return;
+    }
+    if (checkMandatoryField(name) === false) {
+        console.log(noNameInserted);
         return;
     }
 
     /** check if fields requiring numbers are receiving numbers */
-    if (!Number.isInteger(id)) {
-        console.log('Event id must be number.');
+    if ((checkIfNumber(id) === false)) {
+        console.log(eventIdWarning);
         return;
     }
-    if (!Number.isInteger(access)) {
-        console.log('Access must be 1(18+) or 0(for all).');
+    if ((checkIfNumber(access) === false)) {
+        console.log(accessWarning);
         return;
     }
-    if (!Number.isInteger(price)) {
-        console.log('Price must be a number.');
+    if ((checkIfNumber(price) === false)) {
+        console.log(priceWarning);
         return;
     }
 
@@ -299,7 +344,7 @@ function updateEvent(id, name, access = 0, price = 0) {
     localStorage.setItem('events', JSON.stringify(events));
 
     /** Success message */
-    console.log('Event ' + id + ' has been updated');
+    console.log(`Event ${id} has been updated`);
 }
 
 /**
@@ -317,30 +362,30 @@ function createClient(name, gender, age, wallet) {
     }
 
     /** check if all mandatory fields are filled */
-    if (name === '' || name == null) {
-        console.log('You must enter a name in order to create a client.');
+    if (checkMandatoryField(name) === false) {
+        console.log(noNameInserted);
         return;
     }
-    if (gender === '' || gender == null) {
-        console.log('You must enter gender in order to create a client.');
+    if (checkMandatoryField(gender) === false) {
+        console.log(noGenderInserted);
         return;
     }
-    if (age === '' || age == null) {
-        console.log('You must enter an age in order to create a client.');
+    if (checkMandatoryField(age) === false) {
+        console.log(noAgeInserted);
         return;
     }
-    if (wallet === '' || wallet == null) {
-        console.log('You must enter wallet money in order to create a client.');
+    if (checkMandatoryField(wallet) === false) {
+        console.log(noWalletInserted);
         return;
     }
 
     /** check if fields requiring numbers are receiving numbers */
-    if (!Number.isInteger(age)) {
-        console.log('Age value must be a number');
+    if ((checkIfNumber(age) === false)) {
+        console.log(ageWarning);
         return;
     }
-    if (!Number.isInteger(wallet)) {
-        console.log('Wallet money value must be a number');
+    if ((checkIfNumber(wallet) === false)) {
+        console.log(walletWarning);
         return;
     }
 
@@ -366,7 +411,7 @@ function createClient(name, gender, age, wallet) {
     }
 
     /** success message */
-    console.log('New client has been created.');
+    console.log(`New client has been created.`);
 }
 
 
@@ -381,13 +426,17 @@ function getClients() {
     }
 
     /** check if any clients in localStorage */
-    if (localStorage.getItem('clients') != null) {
-        let clients = [];
-        JSON.parse(localStorage.getItem('clients')).forEach(function (client) {
-            clients.push(client);
-        });
-        return clients;
+    if (checkAvailability('clients') === false) {
+        console.log(noClientsAvailable);
+        return;
     }
+
+    /** gets all clients */
+    let clients = [];
+    JSON.parse(localStorage.getItem('clients')).forEach(function (client) {
+        clients.push(client);
+    });
+    return clients;
 }
 
 /**
@@ -401,25 +450,33 @@ function getClientById(clientId) {
         return;
     }
 
-    /** check if fields requiring numbers are receiving numbers */
-    if (!Number.isInteger(clientId)) {
-        console.log('Client id must be number.');
+    /** check if any clients in localStorage */
+    if (checkAvailability('clients') === false) {
+        console.log(noClientsAvailable);
         return;
     }
 
-    /** check if any clients in localStorage */
-    if (localStorage.getItem('clients') != null) {
-        let clients = getClients();
-        let client = {};
-        clients.forEach(function (el) {
-            if (el.id === clientId) {
-                client = el;
-            }
-        });
-        return client;
-    } else {
-        console.log('No clients in list');
+    /** check if mandatory fields are filled */
+    if (checkMandatoryField(clientId) === false) {
+        console.log(noClientIdInserted);
+        return;
     }
+
+    /** check if fields requiring numbers are receiving numbers */
+    if ((checkIfNumber(clientId) === false)) {
+        console.log(clientIdWarning);
+        return;
+    }
+
+    /** get client by id */
+    let clients = getClients();
+    let client = {};
+    clients.forEach(function (el) {
+        if (el.id === clientId) {
+            client = el;
+        }
+    });
+    return client;
 }
 
 /**
@@ -433,20 +490,19 @@ function showClients() {
     }
 
     /** check if any clients in localStorage */
-    if (localStorage.getItem('clients') == null) {
-        console.log('No clients!');
+    if (checkAvailability('clients') === false) {
+        console.log(noClientsAvailable);
         return;
     }
 
     /** displaying clients */
-    console.log('Clients list: ');
+    console.log(`Clients list: `);
     getClients().forEach(function (item) {
-        console.log('Client ' + item.id);
-        console.log('Name: ' + item.name);
-        console.log('Gender: ' + item.gender);
-        console.log('Age: ' + item.age);
-        console.log('Wallet money: ' + item.wallet);
-        // console.log('-------')
+        console.log(`Client ${item.id}`);
+        console.log(`Name: ${item.name}`);
+        console.log(`Gender: ${item.gender}`);
+        console.log(`Age: ${item.age}`);
+        console.log(`Wallet money: ${item.wallet}`);
     });
 }
 
@@ -462,14 +518,20 @@ function removeClient(id) {
     }
 
     /** check if any clients in localStorage */
-    if (localStorage.getItem('clients') == null) {
-        console.log('No clients to delete!');
+    if (checkAvailability('clients') === false) {
+        console.log(noClientsAvailable);
+        return;
+    }
+
+    /** check if all mandatory fields are filled */
+    if (checkMandatoryField(id) === false) {
+        console.log(noClientIdInserted);
         return;
     }
 
     /** check if fields requiring numbers are receiving numbers */
-    if (!Number.isInteger(id)) {
-        console.log('Client id must be integer.');
+    if ((checkIfNumber(id) === false)) {
+        console.log(clientIdWarning);
         return;
     }
 
@@ -491,7 +553,7 @@ function removeClient(id) {
     localStorage.setItem('clients', JSON.stringify(clientsAfterDeletion));
 
     /** success message */
-    console.log('Client ' + id + ' has been deleted.');
+    console.log(`Client ${id} has been deleted.`);
 }
 
 /**
@@ -510,39 +572,45 @@ function updateClient(id, name, gender, age, wallet) {
         return;
     }
 
+    /** check if any clients in localStorage */
+    if (checkAvailability('clients') === false) {
+        console.log(noClientsAvailable);
+        return;
+    }
+
     /** check if mandatory fields are filled */
-    if (id === '' || id == null) {
-        console.log('You must enter an id in order to update a client.');
+    if (checkMandatoryField(id) === false) {
+        console.log(noClientIdInserted);
         return;
     }
-    if (name === '' || name == null) {
-        console.log('You must enter a name in order to update a client.');
+    if (checkMandatoryField(name) === false) {
+        console.log(noNameInserted);
         return;
     }
-    if (gender === '' || gender == null) {
-        console.log('You must enter a gender in order to update a client.');
+    if (checkMandatoryField(gender) === false) {
+        console.log(noGenderInserted);
         return;
     }
-    if (age === '' || age == null) {
-        console.log('You must enter an age in order to update a client.');
+    if (checkMandatoryField(age) === false) {
+        console.log(noAgeInserted);
         return;
     }
-    if (wallet === '' || wallet == null) {
-        console.log('You must enter wallet money in order to create a client.');
+    if (checkMandatoryField(wallet) === false) {
+        console.log(noWalletInserted);
         return;
     }
 
     /** check if fields requiring numbers are receiving numbers */
-    if (!Number.isInteger(id)) {
-        console.log('Client id must be a number.');
+    if ((checkIfNumber(id) === false)) {
+        console.log(clientIdWarning);
         return;
     }
-    if (!Number.isInteger(age)) {
-        console.log('Age must be a number.');
+    if ((checkIfNumber(age) === false)) {
+        console.log(ageWarning);
         return;
     }
-    if (!Number.isInteger(wallet)) {
-        console.log('Wallet money must be a number.');
+    if ((checkIfNumber(wallet) === false)) {
+        console.log(walletWarning);
         return;
     }
 
@@ -563,7 +631,7 @@ function updateClient(id, name, gender, age, wallet) {
     localStorage.setItem('clients', JSON.stringify(clients));
 
     /** success message */
-    console.log('Client ' + id + ' has been updated');
+    console.log(`Client ${id} has been updated`);
 }
 
 /**
@@ -572,26 +640,32 @@ function updateClient(id, name, gender, age, wallet) {
  * @param id
  * @param name
  */
-function updateClientName(id, name){
+function updateClientName(id, name) {
     /** check if organizer is switched on */
     if (!switchOrganizer) {
         switchedOffOrganizerMessage();
         return;
     }
 
-    /** check if all mandatory fields are filled */
-    if (id === '' || id == null) {
-        console.log('You must enter an id in order to update a client.');
+    /** check if any clients in localStorage */
+    if (checkAvailability('clients') === false) {
+        console.log(noClientsAvailable);
         return;
     }
-    if (name === '' || name == null) {
-        console.log('You must enter a name in order to update a client.');
+
+    /** check if all mandatory fields are filled */
+    if (checkMandatoryField(id) === false) {
+        console.log(noClientIdInserted);
+        return;
+    }
+    if (checkMandatoryField(name) === false) {
+        console.log(noNameInserted);
         return;
     }
 
     /** check if fields requiring numbers are receiving numbers */
-    if (!Number.isInteger(id)) {
-        console.log('Client id must be a number.');
+    if ((checkIfNumber(id) === false)) {
+        console.log(clientIdWarning);
         return;
     }
 
@@ -609,7 +683,7 @@ function updateClientName(id, name){
     localStorage.setItem('clients', JSON.stringify(clients));
 
     /** success message */
-    console.log('Client ' + id + ' has been updated');
+    console.log(`Client ${id} has been updated`);
 }
 
 /**
@@ -618,26 +692,32 @@ function updateClientName(id, name){
  * @param id
  * @param gender
  */
-function updateClientGender(id, gender){
+function updateClientGender(id, gender) {
     /** check if organizer is switched on */
     if (!switchOrganizer) {
         switchedOffOrganizerMessage();
         return;
     }
 
-    /** check if all mandatory fields are filled */
-    if (id === '' || id == null) {
-        console.log('You must enter an id in order to update a client.');
+    /** check if any clients in localStorage */
+    if (checkAvailability('clients') === false) {
+        console.log(noClientsAvailable);
         return;
     }
-    if (gender === '' || gender == null) {
-        console.log('You must enter a gender in order to update a client.');
+
+    /** check if all mandatory fields are filled */
+    if (checkMandatoryField(id) === false) {
+        console.log(noClientIdInserted);
+        return;
+    }
+    if (checkMandatoryField(gender) === false) {
+        console.log(noGenderInserted);
         return;
     }
 
     /** check if fields requiring numbers are receiving numbers */
-    if (!Number.isInteger(id)) {
-        console.log('Client id must be a number.');
+    if ((checkIfNumber(id) === false)) {
+        console.log(clientIdWarning);
         return;
     }
 
@@ -654,7 +734,7 @@ function updateClientGender(id, gender){
     localStorage.setItem('clients', JSON.stringify(clients));
 
     /** success message */
-    console.log('Client ' + id + ' has been updated');
+    console.log(`Client ${id} has been updated`);
 }
 
 /**
@@ -663,30 +743,36 @@ function updateClientGender(id, gender){
  * @param id
  * @param age
  */
-function updateClientAge(id, age){
+function updateClientAge(id, age) {
     /** check if organizer is switched on */
     if (!switchOrganizer) {
         switchedOffOrganizerMessage();
         return;
     }
 
-    /** check if all mandatory fields are filled */
-    if (id === '' || id == null) {
-        console.log('You must enter an id in order to update a client.');
+    /** check if any clients in localStorage */
+    if (checkAvailability('clients') === false) {
+        console.log(noClientsAvailable);
         return;
     }
-    if (age === '' || age == null) {
-        console.log('You must enter an age in order to update a client.');
+
+    /** check if all mandatory fields are filled */
+    if (checkMandatoryField(id) === false) {
+        console.log(noClientIdInserted);
+        return;
+    }
+    if (checkMandatoryField(age) === false) {
+        console.log(noAgeInserted);
         return;
     }
 
     /** check if fields requiring numbers are receiving numbers */
-    if (!Number.isInteger(id)) {
-        console.log('Client id must be a number.');
+    if ((checkIfNumber(id) === false)) {
+        console.log(clientIdWarning);
         return;
     }
-    if (!Number.isInteger(age)) {
-        console.log('Age must be a number.');
+    if ((checkIfNumber(age) === false)) {
+        console.log(ageWarning);
         return;
     }
 
@@ -704,7 +790,7 @@ function updateClientAge(id, age){
     localStorage.setItem('clients', JSON.stringify(clients));
 
     /** success message */
-    console.log('Client ' + id + ' has been updated');
+    console.log(`Client ${id} has been updated`);
 }
 
 /**
@@ -720,23 +806,29 @@ function updateClientWallet(id, wallet) {
         return;
     }
 
-    /** check if all mandatory fields are filled */
-    if (id === '' || id == null) {
-        console.log('You must enter an id in order to update a client.');
+    /** check if any clients in localStorage */
+    if (checkAvailability('clients') === false) {
+        console.log(noClientsAvailable);
         return;
     }
-    if (wallet === '' || wallet == null) {
-        console.log('You must enter wallet money in order to create a client.');
+
+    /** check if all mandatory fields are filled */
+    if (checkMandatoryField(id) === false) {
+        console.log(noClientIdInserted);
+        return;
+    }
+    if (checkMandatoryField(wallet) === false) {
+        console.log(noWalletInserted);
         return;
     }
 
     /** check if fields requiring numbers are receiving numbers */
-    if (!Number.isInteger(id)) {
-        console.log('Client id must be a number.');
+    if ((checkIfNumber(id) === false)) {
+        console.log(clientIdWarning);
         return;
     }
-    if (!Number.isInteger(wallet)) {
-        console.log('Wallet money must be a number.');
+    if ((checkIfNumber(wallet) === false)) {
+        console.log(walletWarning);
         return;
     }
 
@@ -753,7 +845,7 @@ function updateClientWallet(id, wallet) {
     localStorage.setItem('clients', JSON.stringify(clients));
 
     /** success message */
-    console.log('Client ' + id + ' has been updated');
+    console.log(`Client ${id} has been updated`);
 }
 
 /**
@@ -768,47 +860,40 @@ function addClientToEvent(eventId, clientId) {
         return;
     }
 
-    /** check if all mandatory fields are filled */
-    if (eventId === '' || eventId == null) {
-        console.log('Event id must be entered.');
+    /** check if any events in localStorage */
+    if (checkAvailability('events') === false) {
+        console.log(noEventsAvailable);
         return;
     }
-    if (clientId === '' || clientId == null) {
-        console.log('Client id must be entered.');
+
+    /** check if any clients in localStorage */
+    if (checkAvailability('clients') === false) {
+        console.log(noClientsAvailable);
         return;
     }
 
     /** check if fields requiring numbers are receiving numbers */
-    if (!Number.isInteger(eventId)) {
-        console.log('Event id must be a number.');
+    if ((checkIfNumber(eventId) === false)) {
+        console.log(eventIdWarning);
         return;
     }
-    if (!Number.isInteger(clientId)) {
-        console.log('Client id must be a number.');
+    if ((checkIfNumber(clientId) === false)) {
+        console.log(clientIdWarning);
         return;
     }
 
-    /** check if client and event with these ids exists */
     let event = getEventById(eventId);
     let client = getClientById(clientId);
-    if (isEmpty(client)) {
-        console.log('No client with id = ' + clientId);
-        return;
-    }
-    if (isEmpty(event)) {
-        console.log('No event with id = ' + eventId);
-        return;
-    }
 
     /** check for archieved events */
-    if(event.archieve === 1){
-        console.log('Event archieved. Clients cannot be added anymore.');
+    if (event.archieve === 1) {
+        console.log(`Event archieved. Clients cannot be added anymore.`);
         return;
     }
 
     /** check if client has enough money to attend this event */
-    if(client.wallet < event.price){
-        console.log('Client doesn\'t have enough money to attend the event.');
+    if (client.wallet < event.price) {
+        console.log(`Client doesn't have enough money to attend the event.`);
         return;
     }
 
@@ -820,7 +905,7 @@ function addClientToEvent(eventId, clientId) {
             el.clients.forEach(function (cl) {
                 /** check if client already in list */
                 if (cl.id === clientId) {
-                    console.log('Player has been added to the list already.');
+                    console.log(`Player has been added to the list already.`);
                     error++;
                     return;
                 }
@@ -828,13 +913,13 @@ function addClientToEvent(eventId, clientId) {
             });
             /** check if event suitable for client */
             if (el.access === 1 && client.age < 18) {
-                console.log('Event not suitable for this client. Will not be added.');
+                console.log(`Event not suitable for this client. Will not be added.`);
                 error++;
                 return;
             }
 
             /** if client not vip increase income */
-            if(client.vip === 0){
+            if (client.vip === 0) {
                 el.income += el.price;
             }
             el.clients.push(client);
@@ -843,7 +928,7 @@ function addClientToEvent(eventId, clientId) {
     if (error === 0) {
         let clients = getClients();
         /** check if client vip */
-        if(client.vip === 1 ){
+        if (client.vip === 1) {
             clients.forEach(function (cl) {
                 if (cl.id === clientId) {
                     cl.vip = 0; // change to not vip status
@@ -857,9 +942,9 @@ function addClientToEvent(eventId, clientId) {
                     cl.wallet = client.wallet - event.price;
                     cl.events.push(event);
                     /** check if client has attented the amount of events needed to get a vip status */
-                    if(cl.events.length % 6 === 5){
+                    if (cl.events.length % 6 === 5) {
                         cl.vip = 1;
-                    } else  {
+                    } else {
                         cl.vip = 0;
                     }
                 }
@@ -871,12 +956,12 @@ function addClientToEvent(eventId, clientId) {
         localStorage.setItem('events', JSON.stringify(events));
 
         /** success message */
-        console.log('Client with id = ' + clientId + ' has been added to event with id = ' + eventId);
+        console.log(`Client ${clientId} has been added to event ${eventId}`);
     }
 }
 
 /**
- * function for removig a client to an event that he/she has been added
+ * function for removing a client to an event that he/she has been added
  * @param eventId
  * @param clientId
  */
@@ -887,37 +972,40 @@ function removeClientFromEvent(eventId, clientId) {
         return;
     }
 
-    /** check if all mandatory fields are filled */
-    if (eventId === '' || eventId == null) {
-        console.log('Event id must be entered.');
+    /** check if any events in localStorage */
+    if (checkAvailability('events') === false) {
+        console.log(noEventsAvailable);
         return;
     }
-    if (clientId === '' || clientId == null) {
-        console.log('Client id must be entered.');
+
+    /** check if any clients in localStorage */
+    if (checkAvailability('clients') === false) {
+        console.log(noClientsAvailable);
+        return;
+    }
+
+    /** check if all mandatory fields are filled */
+    if (checkMandatoryField(eventId) === false) {
+        console.log(noEventIdInserted);
+        return;
+    }
+    if (checkMandatoryField(clientId) === false) {
+        console.log(noClientIdInserted);
         return;
     }
 
     /** check if fields requiring numbers are receiving numbers */
-    if (!Number.isInteger(eventId)) {
-        console.log('Event id must be number.');
+    if ((checkIfNumber(eventId) === false)) {
+        console.log(eventIdWarning);
         return;
     }
-    if (!Number.isInteger(clientId)) {
-        console.log('Client id must be number.');
+    if ((checkIfNumber(clientId) === false)) {
+        console.log(clientIdWarning);
         return;
     }
 
-    /** check if client and event with these ids exist */
     let event = getEventById(eventId);
     let client = getClientById(clientId);
-    if (isEmpty(client)) {
-        console.log('No client with id = ' + clientId);
-        return;
-    }
-    if (isEmpty(event)) {
-        console.log('No event with id = ' + eventId);
-        return;
-    }
 
     /** gets all events */
     let clients = [];
@@ -997,24 +1085,34 @@ function showEventsClientsList(eventId, gender = 0) {
         return;
     }
 
+    /** check if any events in localStorage */
+    if (checkAvailability('events') === false) {
+        console.log(noEventsAvailable);
+        return;
+    }
+
     /** check if mandatory fields are filled */
+    if (checkMandatoryField(eventId) === false) {
+        console.log(noEventIdInserted);
+        return;
+    }
 
     /** check if fields requiring numbers are receiving numbers */
-    if (!Number.isInteger(eventId)) {
-        console.log('Event id must be a number.');
+    if ((checkIfNumber(eventId) === false)) {
+        console.log(eventIdWarning);
         return;
     }
 
     /** check if event exists */
     let event = getEventById(eventId);
     if (isEmpty(event)) {
-        console.log('No event with id = ' + eventId);
+        console.log(`No event with id ${eventId}`);
         return;
     }
 
     /** check if event has clients */
-    if(event.clients.length < 1){
-        console.log('Event doesn\'t have any clients');
+    if (event.clients.length < 1) {
+        console.log(`Event doesn't have any clients`);
         return;
     }
 
@@ -1023,22 +1121,22 @@ function showEventsClientsList(eventId, gender = 0) {
         /** if specified gender */
         event.clients.forEach(function (client) {
             if (client.gender === gender) {
-                console.log('Client ' + client.id);
-                console.log('Name: ' + client.name);
-                console.log('Gender: ' + client.gender);
-                console.log('Age: ' + client.age);
-                console.log('-------')
+                console.log(`Client ${client.id}`);
+                console.log(`Name: ${client.name}`);
+                console.log(`Gender: ${client.gender}`);
+                console.log(`Age: ${client.age}`);
+                console.log(`-------`)
             }
         });
         return;
     }
     /** if no gender specified show all */
     event.clients.forEach(function (client) {
-        console.log('Client ' + client.id);
-        console.log('Name: ' + client.name);
-        console.log('Gender: ' + client.gender);
-        console.log('Age: ' + client.age);
-        console.log('-------')
+        console.log(`Client ${client.id}`);
+        console.log(`Name: ${client.name}`);
+        console.log(`Gender: ${client.gender}`);
+        console.log(`Age: ${client.age}`);
+        console.log(`-------`)
     });
 }
 
@@ -1054,13 +1152,13 @@ function getEventWithMostClients() {
     }
 
     /** check if any events in localStorage */
-    let events = getEvents();
-    if (localStorage.getItem('events') == null) {
-        console.log('No events available.');
+    if (checkAvailability('events') === false) {
+        console.log(noEventsAvailable);
         return;
     }
 
     /** get event with max clients */
+    let events = getEvents();
     let maxClientCount = events[0].clients.length;
     events.forEach(function (event) {
         if (event.clients.length > maxClientCount) {
@@ -1068,10 +1166,10 @@ function getEventWithMostClients() {
         }
     });
     /** display list with all events with max clients */
-    console.log('Event(s) with most clients: ');
+    console.log(`Event(s) with most clients: `);
     events.forEach(function (event) {
         if (event.clients.length === maxClientCount) {
-            console.log('\'' + event.name + '\' has ' + maxClientCount + ' clients.');
+            console.log(`${event.name} has ${maxClientCount} clients.`);
         }
     });
 }
@@ -1087,13 +1185,14 @@ function getEventsForUnderEighteen() {
     }
 
     /** check if any events in localStorage */
-    let events = getEvents();
-    if (localStorage.getItem('events') == null) {
-        console.log('No events available.');
+    if (checkAvailability('events') === false) {
+        console.log(noEventsAvailable);
         return;
     }
+
+    let events = getEvents();
     /** display list with all events suitable for underage clients */
-    console.log('Events suitable for people below 18: ');
+    console.log(`Events suitable for people below 18: `);
     events.forEach(function (event) {
         if (event.access === 0) {
             console.log(event.name);
@@ -1105,20 +1204,28 @@ function getEventsForUnderEighteen() {
  * function for archieving event by it's id
  * @param eventId
  */
-function archieveEvent(eventId){
+function archieveEvent(eventId) {
     /** check if organizer is switched on */
     if (!switchOrganizer) {
         switchedOffOrganizerMessage();
         return;
     }
 
+    /** check if any events in localStorage */
+    if (checkAvailability('events') === false) {
+        console.log(noEventsAvailable);
+        return;
+    }
+
     /** check if all mandatory fields are filled */
+    if (checkMandatoryField(eventId) === false) {
+        console.log(noEventIdInserted);
+        return;
+    }
 
     /** check if fields requiring numbers are receiving numbers */
-
-    /** check if any events in localStorage */
-    if (localStorage.getItem('events') == null) {
-        console.log('No events available.');
+    if ((checkIfNumber(eventId) === false)) {
+        console.log(eventIdWarning);
         return;
     }
 
@@ -1126,7 +1233,7 @@ function archieveEvent(eventId){
     let event = getEventById(eventId);
     let events = getEvents();
     events.forEach(function (event) {
-        if(event.id === eventId){
+        if (event.id === eventId) {
             event.archieve = 1;
         }
     });
@@ -1136,7 +1243,7 @@ function archieveEvent(eventId){
     localStorage.setItem('events', JSON.stringify(events));
 
     /** success message */
-    console.log('Event \'' + event.name + '\' archieved.');
+    console.log(`Event ${event.name} archieved.`);
 }
 
 /**
@@ -1147,81 +1254,82 @@ function archieveEvent(eventId){
  * @param clientId
  * @param points
  */
-function rateEvent(eventId, clientId, points){
+function rateEvent(eventId, clientId, points) {
     /** check if organizer is switched on */
     if (!switchOrganizer) {
         switchedOffOrganizerMessage();
         return;
     }
 
+    /** check if any events in localStorage */
+    if (checkAvailability('events') === false) {
+        console.log(noEventsAvailable);
+        return;
+    }
+
+    /** check if any clients in localStorage */
+    if (checkAvailability('clients') === false) {
+        console.log(noClientsAvailable);
+        return;
+    }
+
     /** check if all mandatory fields are filled */
-    if (eventId === '' || eventId == null) {
-        console.log('Event id must be entered.');
+    if (checkMandatoryField(eventId) === false) {
+        console.log(noEventIdInserted);
         return;
     }
-    if (clientId === '' || clientId == null) {
-        console.log('Client id must be entered.');
+    if (checkMandatoryField(clientId) === false) {
+        console.log(noClientIdInserted);
         return;
     }
-    if (points === '' || points == null) {
-        console.log('Points must be entered.');
+    if (checkMandatoryField(points) === false) {
+        console.log(noPointsInserted);
         return;
     }
 
     /** check if fields requiring numbers are receiving numbers */
-    if (!Number.isInteger(eventId)) {
-        console.log('Event id must be a number.');
+    if ((checkIfNumber(eventId) === false)) {
+        console.log(eventIdWarning);
         return;
     }
-    if (!Number.isInteger(clientId)) {
-        console.log('Client id must be a number.');
+    if ((checkIfNumber(clientId) === false)) {
+        console.log(clientIdWarning);
         return;
     }
-
-    if (!Number.isInteger(points)) {
-        console.log('Points must be a number.');
+    if ((checkIfNumber(points) === false)) {
+        console.log(`Points must be a number.`);
         return;
         /** check if points given are from 1 do 10 */
-    } else if(points < 1 || points > 10){
-        console.log('Invalid number of points.');
-        return;
-    }
-
-    /** check if event and client exists*/
-    let event = getEventById(eventId);
-    let client = getClientById(clientId);
-    if (isEmpty(client)) {
-        console.log('No client with id = ' + clientId);
-        return;
-    }
-    if (isEmpty(event)) {
-        console.log('No event with id = ' + eventId);
+    } else if (points < 1 || points > 10) {
+        console.log(`Invalid number of points.`);
         return;
     }
 
     /** check if event archieved, as active ones cannot be rated */
+    let client = getClientById(clientId);
+    let event = getEventById(eventId);
     if (event.archieve === 0) {
-        console.log('Active events cannot be rated.');
+        console.log(`Active events cannot be rated.`);
         return;
     }
 
     /** check if client has attended the event */
     let exists = false;
     event.clients.forEach(function (eventClient) {
-        if(eventClient.id === clientId){
+        if (eventClient.id === clientId) {
             exists = true;
         }
     });
 
-    if(!exists){
-        console.log('Client cannot rate event they hadn\'t attended.');
+    if (!exists) {
+        console.log(`Client cannot rate event they hadn't attended.`);
         return;
     }
 
     /** event update with new rating */
     let events = getEvents();
     events.forEach(function (ev) {
-        if(ev.id === eventId){
+        if (ev.id === eventId) {
             ev.points += points;
             ev.clientsRated++;
             ev.rating = calculateRating(ev.clientsRated, ev.points); // calculating the rating
@@ -1242,7 +1350,7 @@ function rateEvent(eventId, clientId, points){
  * @param points - sum of the points of all clients that rated the event
  * @returns {number}
  */
-function calculateRating(clientsCount, points){
+function calculateRating(clientsCount, points) {
     return (6 * points) / (10 * clientsCount);
 }
 
@@ -1250,47 +1358,47 @@ function calculateRating(clientsCount, points){
  * function for event details printing
  * @param item - single event
  */
-function printEvents(item){
-    console.log('----- Event ' + item.id + ' -----');
-    let nameValue = 'Name: ' + item.name;
+function printEvents(item) {
+    console.log(`----- Event ${item.id} -----`);
+    let nameValue = `Name: ${item.name}`;
     /** archieve check */
     if (item.archieve === 1) {
-        nameValue = addSpecialSymbol('~', nameValue); // Adds '~' if event is archieved
+        nameValue = addSpecialSymbol(`~`, nameValue); // Adds '~' if event is archieved
     }
     /** price check */
     if (item.price === 0 || item.price === '' || item.price === undefined) {
-        nameValue = addSpecialSymbol('!', nameValue); // Adds '!' if event is free
+        nameValue = addSpecialSymbol(`!`, nameValue); // Adds '!' if event is free
     } else {
-        nameValue = addSpecialSymbol('$', nameValue); // Adds '$' if event has price
+        nameValue = addSpecialSymbol(`$`, nameValue); // Adds '$' if event has price
     }
     /** access check */
     if (item.access === 1) {
-        nameValue = addSpecialSymbol('*', nameValue); // Adds '*' if event is suitable for clients that are 18+
+        nameValue = addSpecialSymbol(`*`, nameValue); // Adds '*' if event is suitable for clients that are 18+
     } else {
-        nameValue = addSpecialSymbol('#', nameValue); // Adds '#' if event is suitable for clients under 18
+        nameValue = addSpecialSymbol(`#`, nameValue); // Adds '#' if event is suitable for clients under 18
     }
     console.log(nameValue);
     /** access check */
     if (item.access === 0) {
-        console.log('Accessible for all.');
+        console.log(`Accessible for all.`);
     } else {
-        console.log('Accessible for 18+.');
+        console.log(`Accessible for 18+.`);
     }
-    console.log('Price: ', item.price);
+    console.log(`Price: ${item.price}`);
     /** clients check */
     if (item.clients === '' || item.clients.length < 1) {
-        console.log('No clients for this event.');
+        console.log(`No clients for this event.`);
     } else {
-        console.log('--- Clients ---');
+        console.log(`--- Clients ---`);
         showEventsClientsList(item.id);
     }
-    console.log('Creation date: ' + item.dateCreated);
-    console.log('Last update: ' + item.dateUpdated);
+    console.log(`Creation date: ${item.dateCreated}`);
+    console.log(`Last update: ${item.dateUpdated}`);
     /** rate check */
-    if (item.archieve === 0 && item.clientsRated === 0){
-        console.log('Event is still active. Rating will be announced soon.');
+    if (item.archieve === 0 && item.clientsRated === 0) {
+        console.log(`Event is still active. Rating will be announced soon.`);
     } else {
-        console.log('Rating: ' + item.rating);
+        console.log(`Rating: ${item.rating}`);
     }
 }
 
@@ -1308,16 +1416,6 @@ function isEmpty(object) {
 }
 
 /**
- * checks if value is integer
- * @param value
- */
-function isValueInteger(value) {
-    if (!Number.isInteger(value)) {
-        console.log('Must be a number.');
-    }
-}
-
-/**
  * function for adding special symbols when printing specific events
  * @param symbol
  * @param message
@@ -1325,4 +1423,42 @@ function isValueInteger(value) {
  */
 function addSpecialSymbol(symbol, message) {
     return symbol + message;
+}
+
+/**
+ * function for checking if there are any events/clients in the localStorage
+ * @param item
+ * @returns {boolean}
+ */
+function checkAvailability(item) {
+    if (item === 'events') {
+        if (localStorage.getItem('events') == null) {
+            return false;
+        }
+    } else if (item === 'clients') {
+        if (localStorage.getItem('clients') == null) {
+            return false;
+        }
+    }
+}
+
+/**
+ * function for checking if item exists
+ * @param item
+ * @returns {boolean}
+ */
+function checkMandatoryField(item) {
+    if (item === '' || item == null || item === undefined) {
+        return false;
+    }
+}
+
+/**
+ * checks if value is integer
+ * @param value
+ */
+function checkIfNumber(value) {
+    if (Number.isInteger(value) === false) {
+        return false;
+    }
 }
