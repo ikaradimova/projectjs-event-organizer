@@ -24,10 +24,8 @@ const eventIdWarning = `Event id must be a number.`;
 const clientIdWarning = `Client id must be a number.`;
 const ageWarning = `Age must be a number.`;
 const walletWarning = `Wallet money must be a number.`;
-
-// if (!switchOrganizer) {
-//     console.log('Organizer has been switched off. In order to use it, please switch it on first.');
-// }
+const noEvent = `No event with this id.`;
+const noClient = `No client with this id.`;
 
 /**
  * function for switching on and off the organizer
@@ -97,11 +95,12 @@ function createEvent(name, access, price) {
     }
 
     /** check if fields requiring numbers are receiving numbers */
-    if ((access !== '' || access != null) && (checkIfNumber(access) === false)) {
+    if ((checkMandatoryField(access) !== false) && (checkIfNumber(access) === false)) {
+
         console.log(accessWarning);
         return;
     }
-    if ((price !== '' || price != null) && (checkIfNumber(price) === false)) {
+    if ((checkMandatoryField(price) !== false) && (checkIfNumber(price) === false)) {
         console.log(priceWarning);
         return;
     }
@@ -189,6 +188,10 @@ function getEventById(eventId) {
             event = el;
         }
     });
+    if (isEmpty(event)){
+        console.log(noEvent);
+        return;
+    }
     return event;
 }
 
@@ -256,7 +259,13 @@ function removeEvent(id) {
         return;
     }
 
-    /** gets all events in localStorag */
+    /** check if event exists */
+    if(isEmpty(id)){
+        console.log(noEvent);
+        return;
+    }
+
+    /** gets all events in localStorage */
     let events = [];
     getEvents().forEach(function (item) {
         events.push(item);
@@ -380,6 +389,7 @@ function createClient(name, gender, age, wallet) {
     }
 
     /** check if fields requiring numbers are receiving numbers */
+    /** gender not validated because everybody has the right to choose their own gender */
     if ((checkIfNumber(age) === false)) {
         console.log(ageWarning);
         return;
@@ -532,6 +542,12 @@ function removeClient(id) {
     /** check if fields requiring numbers are receiving numbers */
     if ((checkIfNumber(id) === false)) {
         console.log(clientIdWarning);
+        return;
+    }
+
+    /** check if client with this id exists */
+    if(isEmpty(id)){
+        console.log(noClient);
         return;
     }
 
@@ -1004,6 +1020,17 @@ function removeClientFromEvent(eventId, clientId) {
         return;
     }
 
+    /** check if event with this id exists */
+    if(isEmpty(eventId)){
+        console.log(noEvent);
+        return;
+    }
+    /** check if client with this id exists */
+    if(isEmpty(clientId)){
+        console.log(noClient);
+        return;
+    }
+
     let event = getEventById(eventId);
     let client = getClientById(clientId);
 
@@ -1243,7 +1270,7 @@ function archieveEvent(eventId) {
     localStorage.setItem('events', JSON.stringify(events));
 
     /** success message */
-    console.log(`Event ${event.name} archieved.`);
+    console.log(`${event.name} archieved.`);
 }
 
 /**
@@ -1342,6 +1369,59 @@ function rateEvent(eventId, clientId, points) {
 
     /** success message */
     console.log(`Event ${eventId} has been rated by ${points} by client ${clientId}.`);
+}
+
+/**
+ * filter function
+ * @param param -(name/access)
+ * @param value - what to filter by
+ *                if filtered by name - gets events which name contains the given value
+ *                if filtered by access - gets events witch access is equal to the given value
+ */
+function filterFunc(param, value) {
+    /** check if organizer is switched on */
+    if (!switchOrganizer) {
+        switchedOffOrganizerMessage();
+        return;
+    }
+
+    /** check if any events in localStorage */
+    if (checkAvailability('events') === false) {
+        console.log(noEventsAvailable);
+        return;
+    }
+
+    /** check if all mandatory fields are filled */
+    if (checkMandatoryField(param) === false) {
+        console.log(`Enter what you want to filter (name/access).`);
+        return;
+    }
+    if (checkMandatoryField(value) === false) {
+        console.log(`Enter what you want to filter by.`);
+        return;
+    }
+
+    let events = getEvents();
+    let filteredEvents = [];
+    /** filter event's name by what it contains */
+    if (param === 'name') {
+        filteredEvents = events.filter(event => event.name.toLowerCase().includes(value.toLowerCase()));
+        /** filter event's acces by given value */
+    } else if (param === 'access') {
+        filteredEvents = events.filter(event => event.access === value)
+    } else {
+        console.log(`You cannot filter ${param}`);
+        return;
+    }
+
+    /** if no results */
+    if (isEmpty(filteredEvents)){
+        console.log(`No results.`);
+        return;
+    }
+    filteredEvents.forEach(function (singleFilteredEvent) {
+        printEvents(singleFilteredEvent);
+    });
 }
 
 /**

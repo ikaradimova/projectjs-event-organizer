@@ -119,3 +119,9 @@ rateEvent(1, 1, 5);
 rateEvent(2, 1, 5);
 // test when a client is trying to rate an event they hadn't been to
 rateEvent(1, 4, 5);
+
+// filter function
+// * first parameter - what you want to filter (name/access)
+// * second parameter - what you want to filter by
+filterFunc('name', 'event');
+filterFunc('access', 1);
