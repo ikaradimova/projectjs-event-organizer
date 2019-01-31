@@ -333,7 +333,7 @@ function updateEvent(id, name, access = 0, price = 0) {
 
     /** getting all events from localStorage */
     let events = getEvents();
-    getEvents().forEach(function (event) {
+    events.forEach(function (event) {
         /** check for desired event */
         if (event.id === id) {
             /** update values */
@@ -348,6 +348,7 @@ function updateEvent(id, name, access = 0, price = 0) {
         }
     });
 
+    console.log(events);
     /** localStorage updates */
     localStorage.removeItem('events');
     localStorage.setItem('events', JSON.stringify(events));
@@ -1017,17 +1018,6 @@ function removeClientFromEvent(eventId, clientId) {
     }
     if ((checkIfNumber(clientId) === false)) {
         console.log(clientIdWarning);
-        return;
-    }
-
-    /** check if event with this id exists */
-    if(isEmpty(eventId)){
-        console.log(noEvent);
-        return;
-    }
-    /** check if client with this id exists */
-    if(isEmpty(clientId)){
-        console.log(noClient);
         return;
     }
 
