@@ -64,10 +64,13 @@ class Client {
  * @param price
  */
 function createEvent(name, access, price) {
+    /** check if organizer is switched on */
     if (!switchOrganizer) {
         switchedOffOrganizerMessage();
         return;
     }
+
+    /** check if mandatory fields are filled */
     if (name === '' || name == null) {
         console.log('You must enter a name in order to create an event.');
         return;
@@ -80,8 +83,8 @@ function createEvent(name, access, price) {
     //     console.log('Price must be a number.');
     //     return;
     // }
-    let events = [];
 
+    let events = [];
     if (localStorage.getItem('events') == null || localStorage.getItem('events') === '[]') {
         let id = 1;
         let event = new Event(id, name, access, price);
@@ -106,10 +109,13 @@ function createEvent(name, access, price) {
  * @returns {*}
  */
 function getEvents() {
+    /** check if organizer is switched on */
     if (!switchOrganizer) {
         switchedOffOrganizerMessage();
         return;
     }
+
+    /** check if any events in localStorage */
     if (localStorage.getItem('events') != null) {
         let events = [];
         JSON.parse(localStorage.getItem('events')).forEach(function (event) {
@@ -123,23 +129,26 @@ function getEvents() {
 
 /**
  * function for getting a specific event by id
- *
  * @param eventId
- * @returns {{}}
  */
 function getEventById(eventId) {
+    /** check if organizer is switched on */
     if (!switchOrganizer) {
         switchedOffOrganizerMessage();
         return;
     }
+
+    /** check if mandatory fields are filled */
     if (!Number.isInteger(eventId)) {
         console.log('Event id must be number.');
         return;
     }
+
+    /** check if localStorage is empty */
     if (localStorage.getItem('events') != null) {
-        let events = getEvents();
+        /** gets single event */
         let event = {};
-        events.forEach(function (el) {
+        getEvents().forEach(function (el) {
             if (el.id === eventId) {
                 event = el;
             }
@@ -157,60 +166,32 @@ function getEventById(eventId) {
  * if parameter set to '0' returns all active events
  */
 function showEvents() {
+    /** check if organizer is switched on */
     if (!switchOrganizer) {
         switchedOffOrganizerMessage();
         return;
     }
+
+    /** check if there are any events in the localStorage */
     if (localStorage.getItem('events') == null) {
         console.log('No events available!');
         return;
     }
-    console.log('Events list: ');
 
     let archieve = arguments[0];
+    console.log('Events list: ');
     getEvents().forEach(function (item) {
+        /** check which events to show */
         if(archieve === undefined || archieve === ''){
-            // console.log(archieve);
-            // console.log(item);
+            /** shows all events */
             printEvents(item);
         } else {
+            /** shows only active/archieved events */
             if(item.archieve === archieve){
                 printEvents(item);
             }
         }
-        // console.log('----- Event ' + item.id + ' -----');
-        // let nameValue = 'Name: ' + item.name;
-        // if (item.archieve === 1) {
-        //     nameValue = addSpecialSymbol('~', nameValue);
-        // }
-        // if (item.price === 0 || item.price === '' || item.price === undefined) {
-        //     nameValue = addSpecialSymbol('!', nameValue);
-        // } else {
-        //     nameValue = addSpecialSymbol('$', nameValue);
-        // }
-        // if (item.access === 1) {
-        //     nameValue = addSpecialSymbol('*', nameValue);
-        // } else {
-        //     nameValue = addSpecialSymbol('#', nameValue);
-        // }
-        // console.log(nameValue);
-        // if (item.access === 0) {
-        //     console.log('Accessible for all.');
-        // } else {
-        //     console.log('Accessible for 18+.');
-        // }
-        // console.log('Price: ', item.price);
-        // if (item.clients === '') {
-        //     console.log('No clients for this event.');
-        // } else {
-        //     console.log('--- Clients ---');
-        //     showEventsClientsList(item.id);
-        // }
-        // console.log('Creation date: ' + item.dateCreated);
-        // console.log('Last update: ' + item.dateUpdated);
-        // // console.log('-------')
     });
-
 }
 
 /**
@@ -218,32 +199,43 @@ function showEvents() {
  * @param id
  */
 function removeEvent(id) {
+    /** check if organizer is switched on */
     if (!switchOrganizer) {
         switchedOffOrganizerMessage();
         return;
     }
+
+    /** check if there are any events in localStorage */
     if (localStorage.getItem('events') == null) {
         console.log('No events to delete!');
         return;
     }
+
+    /** check if id is number */
     if (!Number.isInteger(id)) {
-        console.log('Event id mus be number.');
+        console.log('Event id must be number.');
         return;
     }
+
+    /** gets all events in localStorag */
     let events = [];
     getEvents().forEach(function (item) {
         events.push(item);
     });
-    let elements = [];
+
+    /** removes event which id is equal to the event to be deleted */
+    let eventsAfterDeletion = [];
     events.forEach(function (el) {
-        // console.log(item.id);
         if (el.id !== id) {
-            elements.push(el);
+            eventsAfterDeletion.push(el);
         }
     });
-    localStorage.setItem('events', JSON.stringify(elements));
-    console.log('Event ' + id + ' has been deleted.');
 
+    /** push events back to localStorage */
+    localStorage.setItem('events', JSON.stringify(eventsAfterDeletion));
+
+    /** displays message after successful deletion */
+    console.log('Event ' + id + ' has been deleted.');
 }
 
 /**
@@ -255,10 +247,13 @@ function removeEvent(id) {
  * @param price - by default is '0' which makes it charity event
  */
 function updateEvent(id, name, access = 0, price = 0) {
+    /** check if organizer is switched on */
     if (!switchOrganizer) {
         switchedOffOrganizerMessage();
         return;
     }
+
+    /** check if all mantadory fields are filled */
     if (id === '' || id == null) {
         console.log('You must enter an id in order to update an event');
         return;
@@ -267,6 +262,8 @@ function updateEvent(id, name, access = 0, price = 0) {
         console.log('You must enter a name in order to update an event.');
         return;
     }
+
+    /** check if fields requiring numbers are receiving numbers */
     if (!Number.isInteger(id)) {
         console.log('Event id must be number.');
         return;
@@ -280,11 +277,12 @@ function updateEvent(id, name, access = 0, price = 0) {
         return;
     }
 
+    /** getting all events from localStorage */
     let events = getEvents();
-    events.forEach(function (event) {
+    getEvents().forEach(function (event) {
+        /** check for desired event */
         if (event.id === id) {
-            // console.log(event);
-            // console.log(typeof event);
+            /** update values */
             event.name = name;
             if (access !== '' || access != null) {
                 event.access = access;
@@ -295,11 +293,13 @@ function updateEvent(id, name, access = 0, price = 0) {
             event.dateUpdated = new Date(Date.now()).toLocaleString();
         }
     });
+
+    /** localStorage updates */
     localStorage.removeItem('events');
     localStorage.setItem('events', JSON.stringify(events));
 
+    /** Success message */
     console.log('Event ' + id + ' has been updated');
-
 }
 
 /**
@@ -310,10 +310,13 @@ function updateEvent(id, name, access = 0, price = 0) {
  * @param wallet
  */
 function createClient(name, gender, age, wallet) {
+    /** check if organizer is switched on */
     if (!switchOrganizer) {
         switchedOffOrganizerMessage();
         return;
     }
+
+    /** check if all mandatory fields are filled */
     if (name === '' || name == null) {
         console.log('You must enter a name in order to create a client.');
         return;
@@ -330,6 +333,8 @@ function createClient(name, gender, age, wallet) {
         console.log('You must enter wallet money in order to create a client.');
         return;
     }
+
+    /** check if fields requiring numbers are receiving numbers */
     if (!Number.isInteger(age)) {
         console.log('Age value must be a number');
         return;
@@ -339,35 +344,43 @@ function createClient(name, gender, age, wallet) {
         return;
     }
 
+    /** creating new clients */
     let clients = [];
     if (localStorage.getItem('clients') == null) {
-        let id = 1;
+        /** if there are no clients in localStorage */
+        let id = 1; // starts counting from 1
         let client = new Client(id, name, gender, age, wallet);
         clients.push(client);
+        /** update localStorage */
         localStorage.setItem('clients', JSON.stringify(clients));
     } else {
-        let id = JSON.parse(localStorage.getItem('clients')).pop().id + 1;
+        /** if there are some clients in localStorage */
+        let id = JSON.parse(localStorage.getItem('clients')).pop().id + 1; // starts counting from the last id
         let client = new Client(id, name, gender, age, wallet);
         JSON.parse(localStorage.getItem('clients')).forEach(function (item) {
             clients.push(item);
         });
         clients.push(client);
+        /** update localStorage */
         localStorage.setItem('clients', JSON.stringify(clients));
     }
 
+    /** success message */
     console.log('New client has been created.');
 }
 
 
 /**
  * function for getting all clients
- * @returns {*}
  */
 function getClients() {
+    /** check if organizer is switched on */
     if (!switchOrganizer) {
         switchedOffOrganizerMessage();
         return;
     }
+
+    /** check if any clients in localStorage */
     if (localStorage.getItem('clients') != null) {
         let clients = [];
         JSON.parse(localStorage.getItem('clients')).forEach(function (client) {
@@ -380,17 +393,21 @@ function getClients() {
 /**
  * function for getting a client by it's id
  * @param clientId
- * @returns {{}}
  */
 function getClientById(clientId) {
+    /** check if organizer is switched on */
     if (!switchOrganizer) {
         switchedOffOrganizerMessage();
         return;
     }
+
+    /** check if fields requiring numbers are receiving numbers */
     if (!Number.isInteger(clientId)) {
         console.log('Client id must be number.');
         return;
     }
+
+    /** check if any clients in localStorage */
     if (localStorage.getItem('clients') != null) {
         let clients = getClients();
         let client = {};
@@ -409,14 +426,19 @@ function getClientById(clientId) {
  * function for displaying all clients
  */
 function showClients() {
+    /** check if organizer is switched on */
     if (!switchOrganizer) {
         switchedOffOrganizerMessage();
         return;
     }
+
+    /** check if any clients in localStorage */
     if (localStorage.getItem('clients') == null) {
         console.log('No clients!');
         return;
     }
+
+    /** displaying clients */
     console.log('Clients list: ');
     getClients().forEach(function (item) {
         console.log('Client ' + item.id);
@@ -433,31 +455,43 @@ function showClients() {
  * @param id
  */
 function removeClient(id) {
+    /** check if organizer is switched on */
     if (!switchOrganizer) {
         switchedOffOrganizerMessage();
         return;
     }
+
+    /** check if any clients in localStorage */
     if (localStorage.getItem('clients') == null) {
         console.log('No clients to delete!');
         return;
     }
+
+    /** check if fields requiring numbers are receiving numbers */
     if (!Number.isInteger(id)) {
         console.log('Client id must be integer.');
         return;
     }
+
+    /** gets all clients */
     let clients = [];
     getClients().forEach(function (item) {
         clients.push(item);
     });
-    let elements = [];
+
+    /** removes client with id equal to the client supposed to be deleted */
+    let clientsAfterDeletion = [];
     clients.forEach(function (el) {
         if (el.id !== id) {
-            elements.push(el);
+            clientsAfterDeletion.push(el);
         }
     });
-    localStorage.setItem('clients', JSON.stringify(elements));
-    console.log('Client ' + id + ' has been deleted.');
 
+    /** update localStorage */
+    localStorage.setItem('clients', JSON.stringify(clientsAfterDeletion));
+
+    /** success message */
+    console.log('Client ' + id + ' has been deleted.');
 }
 
 /**
@@ -470,10 +504,13 @@ function removeClient(id) {
  * @param wallet
  */
 function updateClient(id, name, gender, age, wallet) {
+    /** check if organizer is switched on */
     if (!switchOrganizer) {
         switchedOffOrganizerMessage();
         return;
     }
+
+    /** check if mandatory fields are filled */
     if (id === '' || id == null) {
         console.log('You must enter an id in order to update a client.');
         return;
@@ -494,6 +531,8 @@ function updateClient(id, name, gender, age, wallet) {
         console.log('You must enter wallet money in order to create a client.');
         return;
     }
+
+    /** check if fields requiring numbers are receiving numbers */
     if (!Number.isInteger(id)) {
         console.log('Client id must be a number.');
         return;
@@ -507,18 +546,23 @@ function updateClient(id, name, gender, age, wallet) {
         return;
     }
 
+    /** getting all clients */
     let clients = getClients();
     clients.forEach(function (client) {
         if (client.id === id) {
+            /** updating client */
             client.name = name;
             client.gender = gender;
             client.age = age;
             client.wallet = wallet;
         }
     });
+
+    /** localStorage update */
     localStorage.removeItem('clients');
     localStorage.setItem('clients', JSON.stringify(clients));
 
+    /** success message */
     console.log('Client ' + id + ' has been updated');
 }
 
@@ -529,10 +573,13 @@ function updateClient(id, name, gender, age, wallet) {
  * @param name
  */
 function updateClientName(id, name){
+    /** check if organizer is switched on */
     if (!switchOrganizer) {
         switchedOffOrganizerMessage();
         return;
     }
+
+    /** check if all mandatory fields are filled */
     if (id === '' || id == null) {
         console.log('You must enter an id in order to update a client.');
         return;
@@ -542,20 +589,26 @@ function updateClientName(id, name){
         return;
     }
 
+    /** check if fields requiring numbers are receiving numbers */
     if (!Number.isInteger(id)) {
         console.log('Client id must be a number.');
         return;
     }
 
+    /** gets all clients */
     let clients = getClients();
     clients.forEach(function (client) {
         if (client.id === id) {
+            /** update single client */
             client.name = name;
         }
     });
+
+    /** localStorage update */
     localStorage.removeItem('clients');
     localStorage.setItem('clients', JSON.stringify(clients));
 
+    /** success message */
     console.log('Client ' + id + ' has been updated');
 }
 
@@ -566,10 +619,13 @@ function updateClientName(id, name){
  * @param gender
  */
 function updateClientGender(id, gender){
+    /** check if organizer is switched on */
     if (!switchOrganizer) {
         switchedOffOrganizerMessage();
         return;
     }
+
+    /** check if all mandatory fields are filled */
     if (id === '' || id == null) {
         console.log('You must enter an id in order to update a client.');
         return;
@@ -578,20 +634,26 @@ function updateClientGender(id, gender){
         console.log('You must enter a gender in order to update a client.');
         return;
     }
+
+    /** check if fields requiring numbers are receiving numbers */
     if (!Number.isInteger(id)) {
         console.log('Client id must be a number.');
         return;
     }
 
+    /** gets all clients */
     let clients = getClients();
     clients.forEach(function (client) {
         if (client.id === id) {
+            /** update single client */
             client.gender = gender;
         }
     });
+    /**localStorage update */
     localStorage.removeItem('clients');
     localStorage.setItem('clients', JSON.stringify(clients));
 
+    /** success message */
     console.log('Client ' + id + ' has been updated');
 }
 
@@ -602,10 +664,13 @@ function updateClientGender(id, gender){
  * @param age
  */
 function updateClientAge(id, age){
+    /** check if organizer is switched on */
     if (!switchOrganizer) {
         switchedOffOrganizerMessage();
         return;
     }
+
+    /** check if all mandatory fields are filled */
     if (id === '' || id == null) {
         console.log('You must enter an id in order to update a client.');
         return;
@@ -614,6 +679,8 @@ function updateClientAge(id, age){
         console.log('You must enter an age in order to update a client.');
         return;
     }
+
+    /** check if fields requiring numbers are receiving numbers */
     if (!Number.isInteger(id)) {
         console.log('Client id must be a number.');
         return;
@@ -623,15 +690,20 @@ function updateClientAge(id, age){
         return;
     }
 
+    /** gets all clients */
     let clients = getClients();
     clients.forEach(function (client) {
         if (client.id === id) {
+            /** update single client */
             client.age = age;
         }
     });
+
+    /** update localStorage */
     localStorage.removeItem('clients');
     localStorage.setItem('clients', JSON.stringify(clients));
 
+    /** success message */
     console.log('Client ' + id + ' has been updated');
 }
 
@@ -642,10 +714,13 @@ function updateClientAge(id, age){
  * @param wallet
  */
 function updateClientWallet(id, wallet) {
+    /** check if organizer is switched on */
     if (!switchOrganizer) {
         switchedOffOrganizerMessage();
         return;
     }
+
+    /** check if all mandatory fields are filled */
     if (id === '' || id == null) {
         console.log('You must enter an id in order to update a client.');
         return;
@@ -654,6 +729,8 @@ function updateClientWallet(id, wallet) {
         console.log('You must enter wallet money in order to create a client.');
         return;
     }
+
+    /** check if fields requiring numbers are receiving numbers */
     if (!Number.isInteger(id)) {
         console.log('Client id must be a number.');
         return;
@@ -663,15 +740,19 @@ function updateClientWallet(id, wallet) {
         return;
     }
 
+    /** gets all clients */
     let clients = getClients();
     clients.forEach(function (client) {
         if (client.id === id) {
+            /** single client update */
             client.wallet = wallet;
         }
     });
+    /** localStorage update */
     localStorage.removeItem('clients');
     localStorage.setItem('clients', JSON.stringify(clients));
 
+    /** success message */
     console.log('Client ' + id + ' has been updated');
 }
 
@@ -681,10 +762,13 @@ function updateClientWallet(id, wallet) {
  * @param clientId
  */
 function addClientToEvent(eventId, clientId) {
+    /** check if organizer is switched on */
     if (!switchOrganizer) {
         switchedOffOrganizerMessage();
         return;
     }
+
+    /** check if all mandatory fields are filled */
     if (eventId === '' || eventId == null) {
         console.log('Event id must be entered.');
         return;
@@ -693,6 +777,8 @@ function addClientToEvent(eventId, clientId) {
         console.log('Client id must be entered.');
         return;
     }
+
+    /** check if fields requiring numbers are receiving numbers */
     if (!Number.isInteger(eventId)) {
         console.log('Event id must be a number.');
         return;
@@ -702,6 +788,7 @@ function addClientToEvent(eventId, clientId) {
         return;
     }
 
+    /** check if client and event with these ids exists */
     let event = getEventById(eventId);
     let client = getClientById(clientId);
     if (isEmpty(client)) {
@@ -713,21 +800,25 @@ function addClientToEvent(eventId, clientId) {
         return;
     }
 
+    /** check for archieved events */
     if(event.archieve === 1){
         console.log('Event archieved. Clients cannot be added anymore.');
         return;
     }
 
+    /** check if client has enough money to attend this event */
     if(client.wallet < event.price){
         console.log('Client doesn\'t have enough money to attend the event.');
         return;
     }
+
 
     let events = getEvents();
     let error = 0;
     events.forEach(function (el) {
         if (el.id === eventId) {
             el.clients.forEach(function (cl) {
+                /** check if client already in list */
                 if (cl.id === clientId) {
                     console.log('Player has been added to the list already.');
                     error++;
@@ -735,11 +826,14 @@ function addClientToEvent(eventId, clientId) {
                 }
                 error = 0;
             });
+            /** check if event suitable for client */
             if (el.access === 1 && client.age < 18) {
                 console.log('Event not suitable for this client. Will not be added.');
                 error++;
                 return;
             }
+
+            /** if client not vip increase income */
             if(client.vip === 0){
                 el.income += el.price;
             }
@@ -748,21 +842,22 @@ function addClientToEvent(eventId, clientId) {
     });
     if (error === 0) {
         let clients = getClients();
-        if(client.vip == 1 ){
-            // console.log('vip');
+        /** check if client vip */
+        if(client.vip === 1 ){
             clients.forEach(function (cl) {
                 if (cl.id === clientId) {
-                    cl.vip = 0;
+                    cl.vip = 0; // change to not vip status
                     cl.events.push(event);
                 }
             });
         } else {
-            // console.log('not vip');
             clients.forEach(function (cl) {
                 if (cl.id === clientId) {
+                    /** decreasing wallet money after player has signed for the event */
                     cl.wallet = client.wallet - event.price;
                     cl.events.push(event);
-                    if(cl.events.length % 6 == 5){
+                    /** check if client has attented the amount of events needed to get a vip status */
+                    if(cl.events.length % 6 === 5){
                         cl.vip = 1;
                     } else  {
                         cl.vip = 0;
@@ -770,10 +865,13 @@ function addClientToEvent(eventId, clientId) {
                 }
             });
         }
+        /** update localStorage */
         localStorage.removeItem('clients');
         localStorage.setItem('clients', JSON.stringify(clients));
-        console.log('Client with id = ' + clientId + ' has been added to event with id = ' + eventId);
         localStorage.setItem('events', JSON.stringify(events));
+
+        /** success message */
+        console.log('Client with id = ' + clientId + ' has been added to event with id = ' + eventId);
     }
 }
 
@@ -783,10 +881,13 @@ function addClientToEvent(eventId, clientId) {
  * @param clientId
  */
 function removeClientFromEvent(eventId, clientId) {
+    /** check if organizer is switched on */
     if (!switchOrganizer) {
         switchedOffOrganizerMessage();
         return;
     }
+
+    /** check if all mandatory fields are filled */
     if (eventId === '' || eventId == null) {
         console.log('Event id must be entered.');
         return;
@@ -795,6 +896,8 @@ function removeClientFromEvent(eventId, clientId) {
         console.log('Client id must be entered.');
         return;
     }
+
+    /** check if fields requiring numbers are receiving numbers */
     if (!Number.isInteger(eventId)) {
         console.log('Event id must be number.');
         return;
@@ -804,6 +907,7 @@ function removeClientFromEvent(eventId, clientId) {
         return;
     }
 
+    /** check if client and event with these ids exist */
     let event = getEventById(eventId);
     let client = getClientById(clientId);
     if (isEmpty(client)) {
@@ -815,11 +919,14 @@ function removeClientFromEvent(eventId, clientId) {
         return;
     }
 
+    /** gets all events */
     let clients = [];
     let newEvents = [];
     getEvents().forEach(function (el) {
+        /** find event */
         if (el.id === eventId) {
             for (let client of event.clients) {
+                /** remove client from event's list */
                 if (client.id !== clientId) {
                     clients.push(client);
                 }
@@ -829,7 +936,7 @@ function removeClientFromEvent(eventId, clientId) {
 
     event.clients = {};
     event.clients = clients;
-
+    /** updated list of all events */
     getEvents().forEach(function (el) {
         if (el.id === eventId) {
             newEvents.push(event);
@@ -838,14 +945,14 @@ function removeClientFromEvent(eventId, clientId) {
         }
     });
 
-    console.log(newEvents);
-
-
+    /** get all clients */
     let events = [];
     let newClients = [];
     getClients().forEach(function (cl) {
+        /** find client */
         if (cl.id === clientId) {
             for (let event of client.events) {
+                /** remove event from client's list */
                 if (event.id !== eventId) {
                     events.push(event);
                 }
@@ -855,6 +962,7 @@ function removeClientFromEvent(eventId, clientId) {
 
     client.events = {};
     client.events = events;
+    /** update list of all clients */
     getClients().forEach(function (cl) {
         if (cl.id === clientId) {
             newClients.push(client);
@@ -863,11 +971,15 @@ function removeClientFromEvent(eventId, clientId) {
         }
     });
 
+    /** update localStorage */
     localStorage.removeItem('events');
     localStorage.setItem('events', JSON.stringify(newEvents));
 
     localStorage.removeItem('clients');
     localStorage.setItem('clients', JSON.stringify(newClients));
+
+    /** success message */
+    console.log(`Client ${clientId} has been removed from event ${eventId}`);
 }
 
 /**
@@ -879,24 +991,36 @@ function removeClientFromEvent(eventId, clientId) {
  *                 if gender = something else, id shows the clients that belong to this gender, if any
  */
 function showEventsClientsList(eventId, gender = 0) {
+    /** check if organizer is switched on */
     if (!switchOrganizer) {
         switchedOffOrganizerMessage();
         return;
     }
+
+    /** check if mandatory fields are filled */
+
+    /** check if fields requiring numbers are receiving numbers */
     if (!Number.isInteger(eventId)) {
         console.log('Event id must be a number.');
         return;
     }
+
+    /** check if event exists */
     let event = getEventById(eventId);
     if (isEmpty(event)) {
         console.log('No event with id = ' + eventId);
         return;
     }
+
+    /** check if event has clients */
     if(event.clients.length < 1){
         console.log('Event doesn\'t have any clients');
         return;
     }
+
+    /** gender check */
     if (gender !== 0) {
+        /** if specified gender */
         event.clients.forEach(function (client) {
             if (client.gender === gender) {
                 console.log('Client ' + client.id);
@@ -908,6 +1032,7 @@ function showEventsClientsList(eventId, gender = 0) {
         });
         return;
     }
+    /** if no gender specified show all */
     event.clients.forEach(function (client) {
         console.log('Client ' + client.id);
         console.log('Name: ' + client.name);
@@ -922,43 +1047,52 @@ function showEventsClientsList(eventId, gender = 0) {
  * if events are more than one, displays all
  */
 function getEventWithMostClients() {
+    /** check if organizer is switched on */
     if (!switchOrganizer) {
         switchedOffOrganizerMessage();
         return;
     }
+
+    /** check if any events in localStorage */
     let events = getEvents();
     if (localStorage.getItem('events') == null) {
         console.log('No events available.');
         return;
     }
+
+    /** get event with max clients */
     let maxClientCount = events[0].clients.length;
     events.forEach(function (event) {
         if (event.clients.length > maxClientCount) {
             maxClientCount = event.clients.length;
         }
     });
+    /** display list with all events with max clients */
     console.log('Event(s) with most clients: ');
     events.forEach(function (event) {
         if (event.clients.length === maxClientCount) {
             console.log('\'' + event.name + '\' has ' + maxClientCount + ' clients.');
         }
     });
-    // console.log(maxClientCount);
 }
 
 /**
  * function for getting all events that are suitable for people under 18
  */
 function getEventsForUnderEighteen() {
+    /** check if organizer is switched on */
     if (!switchOrganizer) {
         switchedOffOrganizerMessage();
         return;
     }
+
+    /** check if any events in localStorage */
     let events = getEvents();
     if (localStorage.getItem('events') == null) {
         console.log('No events available.');
         return;
     }
+    /** display list with all events suitable for underage clients */
     console.log('Events suitable for people below 18: ');
     events.forEach(function (event) {
         if (event.access === 0) {
@@ -972,10 +1106,23 @@ function getEventsForUnderEighteen() {
  * @param eventId
  */
 function archieveEvent(eventId){
+    /** check if organizer is switched on */
     if (!switchOrganizer) {
         switchedOffOrganizerMessage();
         return;
     }
+
+    /** check if all mandatory fields are filled */
+
+    /** check if fields requiring numbers are receiving numbers */
+
+    /** check if any events in localStorage */
+    if (localStorage.getItem('events') == null) {
+        console.log('No events available.');
+        return;
+    }
+
+    /** archieve event */
     let event = getEventById(eventId);
     let events = getEvents();
     events.forEach(function (event) {
@@ -983,9 +1130,12 @@ function archieveEvent(eventId){
             event.archieve = 1;
         }
     });
-    // console.log(events);
+
+    /** update localStorage */
     localStorage.removeItem('events');
     localStorage.setItem('events', JSON.stringify(events));
+
+    /** success message */
     console.log('Event \'' + event.name + '\' archieved.');
 }
 
@@ -998,10 +1148,13 @@ function archieveEvent(eventId){
  * @param points
  */
 function rateEvent(eventId, clientId, points){
+    /** check if organizer is switched on */
     if (!switchOrganizer) {
         switchedOffOrganizerMessage();
         return;
     }
+
+    /** check if all mandatory fields are filled */
     if (eventId === '' || eventId == null) {
         console.log('Event id must be entered.');
         return;
@@ -1014,6 +1167,8 @@ function rateEvent(eventId, clientId, points){
         console.log('Points must be entered.');
         return;
     }
+
+    /** check if fields requiring numbers are receiving numbers */
     if (!Number.isInteger(eventId)) {
         console.log('Event id must be a number.');
         return;
@@ -1026,11 +1181,13 @@ function rateEvent(eventId, clientId, points){
     if (!Number.isInteger(points)) {
         console.log('Points must be a number.');
         return;
+        /** check if points given are from 1 do 10 */
     } else if(points < 1 || points > 10){
         console.log('Invalid number of points.');
         return;
     }
 
+    /** check if event and client exists*/
     let event = getEventById(eventId);
     let client = getClientById(clientId);
     if (isEmpty(client)) {
@@ -1041,15 +1198,18 @@ function rateEvent(eventId, clientId, points){
         console.log('No event with id = ' + eventId);
         return;
     }
-    if (event.archieve == 0) {
+
+    /** check if event archieved, as active ones cannot be rated */
+    if (event.archieve === 0) {
         console.log('Active events cannot be rated.');
         return;
     }
+
+    /** check if client has attended the event */
     let exists = false;
     event.clients.forEach(function (eventClient) {
         if(eventClient.id === clientId){
             exists = true;
-            // eventClient.points += points;
         }
     });
 
@@ -1058,24 +1218,22 @@ function rateEvent(eventId, clientId, points){
         return;
     }
 
-
+    /** event update with new rating */
     let events = getEvents();
     events.forEach(function (ev) {
         if(ev.id === eventId){
-            // let clientsCount = ev.clients.length;
             ev.points += points;
             ev.clientsRated++;
-            // console.log(ev.clientsRated);
-            // console.log(ev.points);
-            ev.rating = calculateRating(ev.clientsRated, ev.points);
+            ev.rating = calculateRating(ev.clientsRated, ev.points); // calculating the rating
         }
 
     });
-    console.log(events);
-    // console.log(events);
+    /** update localStorage */
     localStorage.removeItem('events');
     localStorage.setItem('events', JSON.stringify(events));
 
+    /** success message */
+    console.log(`Event ${eventId} has been rated by ${points} by client ${clientId}.`);
 }
 
 /**
@@ -1095,26 +1253,31 @@ function calculateRating(clientsCount, points){
 function printEvents(item){
     console.log('----- Event ' + item.id + ' -----');
     let nameValue = 'Name: ' + item.name;
+    /** archieve check */
     if (item.archieve === 1) {
-        nameValue = addSpecialSymbol('~', nameValue);
+        nameValue = addSpecialSymbol('~', nameValue); // Adds '~' if event is archieved
     }
+    /** price check */
     if (item.price === 0 || item.price === '' || item.price === undefined) {
-        nameValue = addSpecialSymbol('!', nameValue);
+        nameValue = addSpecialSymbol('!', nameValue); // Adds '!' if event is free
     } else {
-        nameValue = addSpecialSymbol('$', nameValue);
+        nameValue = addSpecialSymbol('$', nameValue); // Adds '$' if event has price
     }
+    /** access check */
     if (item.access === 1) {
-        nameValue = addSpecialSymbol('*', nameValue);
+        nameValue = addSpecialSymbol('*', nameValue); // Adds '*' if event is suitable for clients that are 18+
     } else {
-        nameValue = addSpecialSymbol('#', nameValue);
+        nameValue = addSpecialSymbol('#', nameValue); // Adds '#' if event is suitable for clients under 18
     }
     console.log(nameValue);
+    /** access check */
     if (item.access === 0) {
         console.log('Accessible for all.');
     } else {
         console.log('Accessible for 18+.');
     }
     console.log('Price: ', item.price);
+    /** clients check */
     if (item.clients === '' || item.clients.length < 1) {
         console.log('No clients for this event.');
     } else {
@@ -1123,6 +1286,7 @@ function printEvents(item){
     }
     console.log('Creation date: ' + item.dateCreated);
     console.log('Last update: ' + item.dateUpdated);
+    /** rate check */
     if (item.archieve === 0 && item.clientsRated === 0){
         console.log('Event is still active. Rating will be announced soon.');
     } else {
